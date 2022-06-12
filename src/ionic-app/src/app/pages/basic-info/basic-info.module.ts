@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { IonicModule } from '@ionic/angular';
 
@@ -13,8 +13,9 @@ import { BasicInfoPage } from './basic-info.page';
     CommonModule,
     FormsModule,
     IonicModule,
-    BasicInfoPageRoutingModule
+    BasicInfoPageRoutingModule,
+    ReactiveFormsModule,
   ],
-  declarations: [BasicInfoPage]
+  declarations: [BasicInfoPage],
 })
 export class BasicInfoPageModule {}

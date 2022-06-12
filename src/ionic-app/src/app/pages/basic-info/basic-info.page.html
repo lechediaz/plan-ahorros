@@ -1,9 +1,19 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>basic-info</ion-title>
-  </ion-toolbar>
-</ion-header>
-
-<ion-content>
-
+<ion-content class="ion-padding-horizontal">
+  <form [formGroup]="basicInfoForm" (ngSubmit)="onSubmit()">
+    <ion-item>
+      <ion-label position="floating">Nombre de Usuario</ion-label>
+      <ion-input formControlName="username"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label position="floating">Ingresos Mensuales</ion-label>
+      <ion-input formControlName="income" type="number"></ion-input>
+    </ion-item>
+    <ion-button
+      class="ion-margin-top"
+      color="success"
+      [disabled]="!basicInfoForm.valid"
+      type="submit"
+      >Guardar</ion-button
+    >
+  </form>
 </ion-content>

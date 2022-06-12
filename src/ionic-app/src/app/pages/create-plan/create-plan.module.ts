@@ -1,3 +1,4 @@
+import { PlanFormModule } from '../../components/plan-form/plan-form.module';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -13,7 +14,8 @@ import { CreatePlanPage } from './create-plan.page';
     CommonModule,
     FormsModule,
     IonicModule,
-    CreatePlanPageRoutingModule
+    CreatePlanPageRoutingModule,
+    PlanFormModule,
   ],
   declarations: [CreatePlanPage]
 })

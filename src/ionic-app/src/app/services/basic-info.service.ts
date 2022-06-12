@@ -46,7 +46,7 @@ export class BasicInfoService {
     await this.saveBasicInfo(basicInfo);
   };
 
-  saveBasicInfo = async (basicInfo: BasicInfo) => {
+  saveBasicInfo = async (basicInfo: BasicInfo | any) => {
     if (this.platform.is('cordova')) {
       await this.nativeStorage.setItem(BASIC_INFO_STORAGE_KEY, basicInfo);
     } else {

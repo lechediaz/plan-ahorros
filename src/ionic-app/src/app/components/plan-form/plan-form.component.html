@@ -1,0 +1,84 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <ion-item>
+    <ion-label position="floating">Objetivo del Ahorro</ion-label>
+    <ion-input
+      formControlName="goal"
+      placeholder="¿Para qué quieres ahorrar?"
+    ></ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-label position="floating">Monto a Ahorrar</ion-label>
+    <ion-input
+      formControlName="amount_to_save"
+      placeholder="¿Cuánto quieres ahorrar?"
+      type="number"
+    ></ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-label position="floating">Ingresos Mensuales</ion-label>
+    <ion-input
+      formControlName="income"
+      placeholder="¿Cuántos ingresos recibes al mes?"
+      type="number"
+    ></ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-label position="floating">Gastos Mensuales</ion-label>
+    <ion-input
+      formControlName="bills"
+      placeholder="¿Cuánto gastas al mes?"
+      type="number"
+    ></ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-label>Plazo (años)</ion-label>
+
+    <ion-select formControlName="years" placeholder="Indique el plazo en años">
+      <ion-select-option
+        [value]="year.toString()"
+        *ngFor="let year of yearsArray"
+        >{{ year }}</ion-select-option
+      >
+    </ion-select>
+  </ion-item>
+
+  <ion-item>
+    <ion-label>Intervalo</ion-label>
+    <ion-select
+      formControlName="interval"
+      placeholder="Indique el intervalo de ahorro"
+    >
+      <ion-select-option [value]="interval.Weekly">Semanal</ion-select-option>
+      <ion-select-option [value]="interval.Biweekly"
+        >Quincenal</ion-select-option
+      >
+      <ion-select-option [value]="interval.Monthly">Mensual</ion-select-option>
+    </ion-select>
+  </ion-item>
+
+  <ion-item>
+    <ion-label>Tarifa</ion-label>
+    <ion-input formControlName="fee" readonly="true" type="number"></ion-input>
+  </ion-item>
+
+  <ion-button
+    class="ion-margin-top"
+    color="primary"
+    [disabled]="!form.valid"
+    type="button"
+    (click)="onSimulateClick()"
+    >Simular</ion-button
+  >
+
+  <ion-button
+    class="ion-margin-top"
+    color="success"
+    [disabled]="!form.valid"
+    type="submit"
+    >Guardar</ion-button
+  >
+</form>
