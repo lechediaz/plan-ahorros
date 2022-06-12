@@ -41,13 +41,13 @@ export class PlanFormComponent implements OnInit {
 
   ngOnInit() {}
 
-  onSimulateClick() {
-    this.simulate();
+  onCalculateFeeClick() {
+    this.calculateFee();
   }
 
   onSubmit() {
-    this.simulate();
-    console.log('Guardar el plan', this.form.value);
+    this.calculateFee();
+
     this.onSubmitClick.emit({
       amount_to_save: parseFloat(this.form.value.amount_to_save),
       goal: this.form.value.goal,
@@ -59,7 +59,7 @@ export class PlanFormComponent implements OnInit {
     });
   }
 
-  simulate() {
+  calculateFee() {
     let borrowingCapacity =
       parseFloat(this.form.value.income) - parseFloat(this.form.value.bills);
 
