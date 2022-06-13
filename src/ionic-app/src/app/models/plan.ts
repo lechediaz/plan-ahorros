@@ -1,6 +1,7 @@
-import { Interval } from '../enums';
+import { Interval, PlanStatus } from '../enums';
 
 export interface Plan {
+  id?: number;
   income: number;
   interval: Interval;
   amount_to_save: number;
@@ -8,4 +9,7 @@ export interface Plan {
   years: number;
   goal: string;
   fee: number;
+  status: PlanStatus;
+  startDate?: number;
+  completetDate?: number;
 }

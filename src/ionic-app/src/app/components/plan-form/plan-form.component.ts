@@ -1,8 +1,8 @@
-import { ToastController } from '@ionic/angular';
-import { Plan } from '../../models/plan';
-import { Interval } from '../../enums/interval';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { ToastController } from '@ionic/angular';
+import { Interval, PlanStatus } from '../../enums';
+import { Plan } from '../../models';
 
 @Component({
   selector: 'app-plan-form',
@@ -20,7 +20,7 @@ export class PlanFormComponent implements OnInit {
     this.yearsArray = yearsArray;
   }
 
-  public interval = Interval;
+  public Interval = Interval;
 
   @Output() onSubmitClick = new EventEmitter<Plan>();
 
@@ -28,13 +28,15 @@ export class PlanFormComponent implements OnInit {
     income: new FormControl('', [Validators.required, Validators.min(0)]),
     bills: new FormControl('', [Validators.required, Validators.min(0)]),
     years: new FormControl('1', [Validators.required, Validators.min(1)]),
-    fee: new FormControl('0'),
-    interval: new FormControl('', [Validators.required]),
+    fee: new FormControl(0),
+    interval: new FormControl(Interval.Monthly, [Validators.required]),
     amount_to_save: new FormControl('', [
       Validators.required,
       Validators.min(0),
     ]),
     goal: new FormControl('', [Validators.required]),
+    status: new FormControl(PlanStatus.Draft),
+    id: new FormControl(0),
   });
 
   yearsArray: number[] = [];
@@ -48,14 +50,28 @@ export class PlanFormComponent implements OnInit {
   onSubmit() {
     this.calculateFee();
 
+    const {
+      amount_to_save,
+      bills,
+      fee,
+      goal,
+      id,
+      income,
+      interval,
+      status,
+      years,
+    } = this.form.value;
+
     this.onSubmitClick.emit({
-      amount_to_save: parseFloat(this.form.value.amount_to_save),
-      goal: this.form.value.goal,
-      income: parseFloat(this.form.value.income),
-      bills: parseFloat(this.form.value.bills),
-      years: parseFloat(this.form.value.years),
-      fee: parseFloat(this.form.value.fee),
-      interval: Interval[this.form.value.interval],
+      id,
+      amount_to_save: parseFloat(amount_to_save),
+      goal,
+      income: parseFloat(income),
+      bills: parseFloat(bills),
+      years: parseFloat(years),
+      fee,
+      interval,
+      status,
     });
   }
 
@@ -64,7 +80,7 @@ export class PlanFormComponent implements OnInit {
       parseFloat(this.form.value.income) - parseFloat(this.form.value.bills);
 
     const amount_to_save = parseFloat(this.form.value.amount_to_save);
-    const intervalValue = parseInt(this.form.value.interval);
+    const intervalValue = this.form.value.interval;
     const yearsValue = parseInt(this.form.value.years);
 
     let dividend = 0;
@@ -96,7 +112,7 @@ export class PlanFormComponent implements OnInit {
         .then((t) => t.present());
     } else {
       this.form.patchValue({
-        fee: fee.toString(),
+        fee,
       });
     }
   }

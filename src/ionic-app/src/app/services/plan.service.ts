@@ -11,33 +11,96 @@ const PLANS_STORAGE_KEY = 'plan';
 export class PlanService {
   constructor(private platform: Platform, private storage: NativeStorage) {}
 
-  savePlan = async (plan: Plan) => {
-    debugger;
+  getPlans = async () => {
+    let plans: Plan[] = [];
+
     if (this.platform.is('cordova')) {
-      let keys = await this.storage.keys();
-
-      keys = keys.filter((k) => k.startsWith(PLANS_STORAGE_KEY));
-
-      const newId = this.getnewId(keys);
-
-      await this.storage.setItem(`${PLANS_STORAGE_KEY}.${newId}`, plan);
+      plans = await this.getPlansFromDevice();
     } else {
-      let keys = Object.keys(localStorage).filter((k) =>
-        k.startsWith(PLANS_STORAGE_KEY)
-      );
+      plans = this.getPlansFromBrowser();
+    }
 
-      const newId = this.getnewId(keys);
-      const planstring = JSON.stringify(plan);
+    return plans;
+  };
 
-      localStorage.setItem(`${PLANS_STORAGE_KEY}.${newId}`, planstring);
+  private getPlansFromDevice = async () => {
+    let keys = await this.storage.keys();
+
+    keys = keys.filter((k) => k.startsWith(PLANS_STORAGE_KEY));
+
+    const plans = keys.map(async (key) => await this.storage.getItem(key));
+
+    return plans;
+  };
+
+  private getPlansFromBrowser = () => {
+    const plans = Object.entries(localStorage)
+      .filter(([key, value]) => key.startsWith(PLANS_STORAGE_KEY))
+      .map(([key, value]) => JSON.parse(value));
+
+    return plans;
+  };
+
+  savePlan = async (plan: Plan) => {
+    if (this.platform.is('cordova')) {
+      await this.savePlanOnDevice(plan);
+    } else {
+      this.savePlanOnBrowser(plan);
     }
   };
 
-  private getnewId(keys: string[] | any) {
-    const maxId = Math.max(
-      keys.map((k) => parseInt(k.substring(k.indexOf('.') + 1)))
+  private savePlanOnDevice = async (plan: Plan) => {
+    let keys = await this.storage.keys();
+
+    keys = keys.filter((k) => k.startsWith(PLANS_STORAGE_KEY));
+
+    const newId = this.getnewId(keys);
+
+    plan.id = newId;
+
+    await this.storage.setItem(this.buildkey(newId), plan);
+  };
+
+  private savePlanOnBrowser = (plan: Plan) => {
+    let keys = Object.keys(localStorage).filter((k) =>
+      k.startsWith(PLANS_STORAGE_KEY)
     );
+
+    const newId = this.getnewId(keys);
+
+    plan.id = newId;
+
+    const planstring = JSON.stringify(plan);
+
+    localStorage.setItem(this.buildkey(newId), planstring);
+  };
+
+  deletePlan = async (plan: Plan) => {
+    if (this.platform.is('cordova')) {
+      await this.deletePlanFromDevice(plan);
+    } else {
+      this.deletePlanFromBrowser(plan);
+    }
+  };
+
+  private deletePlanFromDevice = async (plan: Plan) =>
+    await this.storage.remove(this.buildkey(plan.id));
+
+  private deletePlanFromBrowser = (plan: Plan) =>
+    localStorage.removeItem(this.buildkey(plan.id));
+
+  private getnewId(keys: string[] | any) {
+    const ids = keys.map((k) => {
+      const idString = k.substring(k.indexOf('.') + 1);
+      const id = parseInt(idString);
+
+      return id;
+    });
+
+    const maxId = Math.max(...ids);
 
     return maxId + 1;
   }
+
+  private buildkey = (id: number | string) => `${PLANS_STORAGE_KEY}.${id}`;
 }
