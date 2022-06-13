@@ -10,6 +10,6 @@ export interface Plan {
   goal: string;
   fee: number;
   status: PlanStatus;
-  startDate?: number;
-  completetDate?: number;
+  startedDate?: number;
+  completedDate?: number;
 }

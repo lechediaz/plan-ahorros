@@ -11,6 +11,32 @@ const PLANS_STORAGE_KEY = 'plan';
 export class PlanService {
   constructor(private platform: Platform, private storage: NativeStorage) {}
 
+  getPlanById = async (id: number | string) => {
+    let plan: Plan = null;
+
+    if (this.platform.is('cordova')) {
+      plan = await this.getPlanByIdFromDevice(id);
+    } else {
+      plan = this.getPlanByIdFromBrowser(id);
+    }
+
+    return plan;
+  };
+
+  private getPlanByIdFromDevice = async (id: number | string) =>
+    await this.storage.getItem(this.buildkey(id));
+
+  private getPlanByIdFromBrowser = (id: number | string) => {
+    let plan: Plan = null;
+    const planString = localStorage.getItem(this.buildkey(id));
+
+    if (planString != null) {
+      plan = JSON.parse(planString);
+    }
+
+    return plan;
+  };
+
   getPlans = async () => {
     let plans: Plan[] = [];
 

@@ -1,9 +1,12 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>update-plan</ion-title>
+    <ion-title>Actualizar Plan</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-
-</ion-content>
+<ion-content
+  ><app-plan-form
+    [planToEdit]="plan"
+    (onSubmitClick)="onSubmitClick($event)"
+  ></app-plan-form
+></ion-content>

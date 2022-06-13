@@ -37,6 +37,12 @@ export class MyPlansPage implements OnInit {
     this.router.navigateByUrl(`/${ROUTES.CREATE_PLAN}`);
   }
 
+  onUpdateClick(plan: Plan) {
+    const route = `/${ROUTES.UPDATE_PLAN}`.replace(':id', plan.id.toString());
+
+    this.router.navigateByUrl(route);
+  }
+
   async onDeleteClick(plan: Plan) {
     const alert = await this.alertController.create({
       header: 'Confirmación',

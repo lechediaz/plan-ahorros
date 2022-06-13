@@ -22,7 +22,7 @@
       </ion-item>
 
       <ion-item-options side="end" *ngIf="plan.status === PlanStatus.Draft">
-        <ion-item-option
+        <ion-item-option (click)="onUpdateClick(plan)"
           ><ion-icon name="pencil" slot="start"></ion-icon>
           Editar</ion-item-option
         >

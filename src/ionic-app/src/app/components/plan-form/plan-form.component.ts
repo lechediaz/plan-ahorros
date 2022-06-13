@@ -1,5 +1,14 @@
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  SimpleChanges,
+} from '@angular/core';
+
 import { ToastController } from '@ionic/angular';
 import { Interval, PlanStatus } from '../../enums';
 import { Plan } from '../../models';
@@ -9,8 +18,8 @@ import { Plan } from '../../models';
   templateUrl: './plan-form.component.html',
   styleUrls: ['./plan-form.component.scss'],
 })
-export class PlanFormComponent implements OnInit {
-  constructor(private toast: ToastController) {
+export class PlanFormComponent implements OnInit, OnChanges {
+  constructor(private toastController: ToastController) {
     const yearsArray = [];
 
     for (let index = 0; index < 30; index++) {
@@ -23,6 +32,8 @@ export class PlanFormComponent implements OnInit {
   public Interval = Interval;
 
   @Output() onSubmitClick = new EventEmitter<Plan>();
+
+  @Input() planToEdit: Plan = null;
 
   form = new FormGroup({
     income: new FormControl('', [Validators.required, Validators.min(0)]),
@@ -42,6 +53,37 @@ export class PlanFormComponent implements OnInit {
   yearsArray: number[] = [];
 
   ngOnInit() {}
+
+  ngOnChanges(changes: SimpleChanges): void {
+    const planToEditPrevious = changes['planToEdit'].previousValue;
+    const planToEditCurrent = changes['planToEdit'].currentValue;
+
+    if (planToEditPrevious === null && planToEditCurrent !== null) {
+      const {
+        amount_to_save,
+        bills,
+        fee,
+        goal,
+        id,
+        income,
+        interval,
+        status,
+        years,
+      } = planToEditCurrent;
+
+      this.form.setValue({
+        amount_to_save: amount_to_save.toString(),
+        bills: bills.toString(),
+        fee,
+        goal,
+        id,
+        income: income.toString(),
+        interval,
+        status,
+        years: years.toString(),
+      });
+    }
+  }
 
   onCalculateFeeClick() {
     this.calculateFee();
@@ -104,7 +146,7 @@ export class PlanFormComponent implements OnInit {
     const fee = amount_to_save / dividend;
 
     if (fee > borrowingCapacity) {
-      this.toast
+      this.toastController
         .create({
           message: `Imposible ahorrar ese monto en el intervalo de tiempo`,
           duration: 5000,

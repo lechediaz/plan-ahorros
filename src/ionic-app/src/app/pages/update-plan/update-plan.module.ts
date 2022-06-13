@@ -8,12 +8,15 @@ import { UpdatePlanPageRoutingModule } from './update-plan-routing.module';
 
 import { UpdatePlanPage } from './update-plan.page';
 
+import { PlanFormModule } from '../../components/plan-form/plan-form.module';
+
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    UpdatePlanPageRoutingModule
+    UpdatePlanPageRoutingModule,
+    PlanFormModule
   ],
   declarations: [UpdatePlanPage]
 })
