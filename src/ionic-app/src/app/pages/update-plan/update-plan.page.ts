@@ -1,5 +1,7 @@
+import { ToastController } from '@ionic/angular';
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ROUTES } from '../../constants';
 import { Plan } from './../../models';
 import { PlanService } from './../../services';
 
@@ -11,7 +13,9 @@ import { PlanService } from './../../services';
 export class UpdatePlanPage implements OnInit {
   constructor(
     private planService: PlanService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private router: Router,
+    private toastController: ToastController
   ) {}
 
   plan: Plan = null;
@@ -22,7 +26,24 @@ export class UpdatePlanPage implements OnInit {
     this.planService.getPlanById(id).then((plan) => (this.plan = plan));
   }
 
-  onSubmitClick(plan: Plan) {
-    // TODO:Actualizar el plan
+  async onSubmitClick(plan: Plan) {
+    try {
+      await this.planService.savePlan(plan);
+
+      const toast = await this.toastController.create({
+        message: 'Plan actualizado correctamente',
+        duration: 4000,
+      });
+
+      await toast.present();
+
+      this.router.navigateByUrl(`/${ROUTES.MY_PLANS}`, { replaceUrl: true });
+    } catch (error) {
+      const toast = await this.toastController.create({
+        message: 'Ha ocurrido un error',
+      });
+
+      await toast.present();
+    }
   }
 }

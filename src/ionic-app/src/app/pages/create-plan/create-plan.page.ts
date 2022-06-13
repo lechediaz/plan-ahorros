@@ -13,7 +13,7 @@ import { PlanService } from './../../services';
 export class CreatePlanPage implements OnInit {
   constructor(
     private planService: PlanService,
-    private toast: ToastController,
+    private toastController: ToastController,
     private router: Router
   ) {}
 
@@ -23,7 +23,7 @@ export class CreatePlanPage implements OnInit {
     try {
       await this.planService.savePlan(plan);
 
-      const toast = await this.toast.create({
+      const toast = await this.toastController.create({
         message: 'Plan creado correctamente',
         duration: 4000,
       });
@@ -32,7 +32,7 @@ export class CreatePlanPage implements OnInit {
 
       this.router.navigateByUrl(`/${ROUTES.MY_PLANS}`, { replaceUrl: true });
     } catch (error) {
-      const toast = await this.toast.create({
+      const toast = await this.toastController.create({
         message: 'Ha ocurrido un error',
       });
 

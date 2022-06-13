@@ -80,11 +80,13 @@ export class PlanService {
 
     keys = keys.filter((k) => k.startsWith(PLANS_STORAGE_KEY));
 
-    const newId = this.getnewId(keys);
+    if (plan.id === undefined) {
+      const newId = this.getnewId(keys);
 
-    plan.id = newId;
+      plan.id = newId;
+    }
 
-    await this.storage.setItem(this.buildkey(newId), plan);
+    await this.storage.setItem(this.buildkey(plan.id), plan);
   };
 
   private savePlanOnBrowser = (plan: Plan) => {
@@ -92,13 +94,15 @@ export class PlanService {
       k.startsWith(PLANS_STORAGE_KEY)
     );
 
-    const newId = this.getnewId(keys);
+    if (plan.id === undefined) {
+      const newId = this.getnewId(keys);
 
-    plan.id = newId;
+      plan.id = newId;
+    }
 
     const planstring = JSON.stringify(plan);
 
-    localStorage.setItem(this.buildkey(newId), planstring);
+    localStorage.setItem(this.buildkey(plan.id), planstring);
   };
 
   deletePlan = async (plan: Plan) => {
