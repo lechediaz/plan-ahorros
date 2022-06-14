@@ -23,7 +23,9 @@ export class MyPlansPage implements OnInit {
 
   plans: Plan[] = [];
 
-  ngOnInit() {
+  ngOnInit() {}
+
+  ionViewWillEnter() {
     this.getPlans().then(() => {});
   }
 

@@ -54,7 +54,12 @@ export class PlanService {
 
     keys = keys.filter((k) => k.startsWith(PLANS_STORAGE_KEY));
 
-    const plans = keys.map(async (key) => await this.storage.getItem(key));
+    const plans = keys.map(async (key) => {
+      const itemString = await this.storage.getItem(key);
+      const itemObject = JSON.parse(itemString);
+
+      return itemObject;
+    });
 
     return plans;
   };
@@ -80,7 +85,7 @@ export class PlanService {
 
     keys = keys.filter((k) => k.startsWith(PLANS_STORAGE_KEY));
 
-    if (plan.id === undefined) {
+    if (plan.id === 0) {
       const newId = this.getnewId(keys);
 
       plan.id = newId;
@@ -94,7 +99,7 @@ export class PlanService {
       k.startsWith(PLANS_STORAGE_KEY)
     );
 
-    if (plan.id === undefined) {
+    if (plan.id === 0) {
       const newId = this.getnewId(keys);
 
       plan.id = newId;
@@ -120,16 +125,21 @@ export class PlanService {
     localStorage.removeItem(this.buildkey(plan.id));
 
   private getnewId(keys: string[] | any) {
-    const ids = keys.map((k) => {
-      const idString = k.substring(k.indexOf('.') + 1);
-      const id = parseInt(idString);
+    let ids = [0];
 
-      return id;
-    });
+    if (keys.length > 0) {
+      ids = keys.map((k) => {
+        const idString = k.substring(k.indexOf('.') + 1);
+        const id = parseInt(idString);
+
+        return id;
+      });
+    }
 
     const maxId = Math.max(...ids);
+    const newId = maxId + 1;
 
-    return maxId + 1;
+    return newId;
   }
 
   private buildkey = (id: number | string) => `${PLANS_STORAGE_KEY}.${id}`;
