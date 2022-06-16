@@ -1,6 +1,5 @@
 import { Platform } from '@ionic/angular';
 import { Injectable } from '@angular/core';
-import { NativeStorage } from '@awesome-cordova-plugins/native-storage/ngx';
 import { BehaviorSubject } from 'rxjs';
 
 // Models
@@ -12,10 +11,7 @@ const BASIC_INFO_STORAGE_KEY = 'basic_info';
   providedIn: 'root',
 })
 export class BasicInfoService {
-  constructor(
-    private platform: Platform,
-    private nativeStorage: NativeStorage
-  ) {}
+  constructor(private platform: Platform) {}
 
   private _basicInfo = new BehaviorSubject<BasicInfo>(null);
   private _basicInfoIsValid = new BehaviorSubject<boolean>(false);
@@ -32,9 +28,7 @@ export class BasicInfoService {
     let basicInfoString = '';
 
     if (this.platform.is('cordova')) {
-      basicInfoString = await this.nativeStorage.getItem(
-        BASIC_INFO_STORAGE_KEY
-      );
+      basicInfoString = await Promise.resolve('');
     } else {
       basicInfoString = localStorage.getItem(BASIC_INFO_STORAGE_KEY);
     }
@@ -48,7 +42,7 @@ export class BasicInfoService {
 
   saveBasicInfo = async (basicInfo: BasicInfo | any) => {
     if (this.platform.is('cordova')) {
-      await this.nativeStorage.setItem(BASIC_INFO_STORAGE_KEY, basicInfo);
+      await Promise.resolve();
     } else {
       const basicInfoString = JSON.stringify(basicInfo);
       localStorage.setItem(BASIC_INFO_STORAGE_KEY, basicInfoString);

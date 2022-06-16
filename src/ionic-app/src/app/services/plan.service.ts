@@ -1,4 +1,3 @@
-import { NativeStorage } from '@awesome-cordova-plugins/native-storage/ngx';
 import { Platform } from '@ionic/angular';
 import { Injectable } from '@angular/core';
 import { Plan } from '../models';
@@ -9,10 +8,10 @@ const PLANS_STORAGE_KEY = 'plan';
   providedIn: 'root',
 })
 export class PlanService {
-  constructor(private platform: Platform, private storage: NativeStorage) {}
+  constructor(private platform: Platform) {}
 
   getPlanById = async (id: number | string) => {
-    let plan: Plan = null;
+    let plan: Plan | any = null;
 
     if (this.platform.is('cordova')) {
       plan = await this.getPlanByIdFromDevice(id);
@@ -23,8 +22,7 @@ export class PlanService {
     return plan;
   };
 
-  private getPlanByIdFromDevice = async (id: number | string) =>
-    await this.storage.getItem(this.buildkey(id));
+  private getPlanByIdFromDevice = (id: number | string) => Promise.resolve();
 
   private getPlanByIdFromBrowser = (id: number | string) => {
     let plan: Plan = null;
@@ -38,7 +36,7 @@ export class PlanService {
   };
 
   getPlans = async () => {
-    let plans: Plan[] = [];
+    let plans: Plan[] | any[] = [];
 
     if (this.platform.is('cordova')) {
       plans = await this.getPlansFromDevice();
@@ -50,12 +48,12 @@ export class PlanService {
   };
 
   private getPlansFromDevice = async () => {
-    let keys = await this.storage.keys();
+    let keys = await Promise.resolve([]);
 
     keys = keys.filter((k) => k.startsWith(PLANS_STORAGE_KEY));
 
     const plans = keys.map(async (key) => {
-      const itemString = await this.storage.getItem(key);
+      const itemString = await Promise.resolve('');
       const itemObject = JSON.parse(itemString);
 
       return itemObject;
@@ -81,7 +79,7 @@ export class PlanService {
   };
 
   private savePlanOnDevice = async (plan: Plan) => {
-    let keys = await this.storage.keys();
+    let keys = await Promise.resolve([]);
 
     keys = keys.filter((k) => k.startsWith(PLANS_STORAGE_KEY));
 
@@ -91,7 +89,7 @@ export class PlanService {
       plan.id = newId;
     }
 
-    await this.storage.setItem(this.buildkey(plan.id), plan);
+    await Promise.resolve({});
   };
 
   private savePlanOnBrowser = (plan: Plan) => {
@@ -119,7 +117,7 @@ export class PlanService {
   };
 
   private deletePlanFromDevice = async (plan: Plan) =>
-    await this.storage.remove(this.buildkey(plan.id));
+    await Promise.resolve([]);
 
   private deletePlanFromBrowser = (plan: Plan) =>
     localStorage.removeItem(this.buildkey(plan.id));
