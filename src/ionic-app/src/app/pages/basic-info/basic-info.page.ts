@@ -1,3 +1,4 @@
+import { filter } from 'rxjs/operators';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -34,14 +35,16 @@ export class BasicInfoPage implements OnInit, OnDestroy {
     this.menuService.setDisableMenu(true);
 
     this.subscriptions.add(
-      this.basicInfoService.basicInfo.subscribe((basicInfo) => {
-        const formValues = {
-          income: String(basicInfo.income),
-          username: basicInfo.username,
-        };
+      this.basicInfoService.basicInfo
+        .pipe(filter((basicInfo) => basicInfo !== null))
+        .subscribe((basicInfo) => {
+          const formValues = {
+            income: String(basicInfo.income),
+            username: basicInfo.username,
+          };
 
-        this.basicInfoForm.setValue(formValues);
-      })
+          this.basicInfoForm.setValue(formValues);
+        })
     );
   }
 

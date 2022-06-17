@@ -23,9 +23,9 @@ export class AppComponent implements OnInit, OnDestroy {
     },
   ];
 
-  subscriptions = new Subscription();
+  subscriptions: Subscription = new Subscription();
 
-  nombreUsuario = '';
+  userName: string = '';
 
   constructor(
     private platform: Platform,
@@ -35,10 +35,10 @@ export class AppComponent implements OnInit, OnDestroy {
   ) {
     this.platform
       .ready()
-      .then(() => this.databaseService.createDataBase())
+      .then(() => this.databaseService.prepareDatabase())
       .then(() => this.basicInfoService.loadBasicInfo())
       .then(() => {
-        console.log('Información cargada');
+        console.log('App started successfully!.');
       });
   }
 
@@ -46,11 +46,13 @@ export class AppComponent implements OnInit, OnDestroy {
     this.subscriptions.add(
       this.basicInfoService.basicInfo
         .pipe(filter((basicInfo) => basicInfo !== null))
-        .subscribe((basicInfo) => (this.nombreUsuario = basicInfo.username))
+        .subscribe((basicInfo) => (this.userName = basicInfo.username))
     );
   }
 
   ngOnDestroy(): void {
-    this.subscriptions.unsubscribe();
+    this.databaseService.storage.close().then(() => {
+      this.subscriptions.unsubscribe();
+    });
   }
 }
