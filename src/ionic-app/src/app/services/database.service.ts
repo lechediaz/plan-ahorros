@@ -50,7 +50,7 @@ export class DatabaseService {
 
     return this.storage.executeSql(
       `CREATE TABLE IF NOT EXISTS ${SQLITE.TABLE_SAVING_PLAN} (
-          id INTEGER PRIMARY KEY,
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
           income INTEGER NOT NULL,
           interval INTEGER DEFAULT 0,
           amount_to_save INTEGER,
@@ -59,7 +59,7 @@ export class DatabaseService {
           goal TEXT,
           fee INTEGER,
           status INTEGER
-        ) WITHOUT ROWID;`,
+        )`,
       []
     );
   };

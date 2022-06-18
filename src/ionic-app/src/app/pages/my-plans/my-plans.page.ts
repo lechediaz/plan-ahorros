@@ -1,10 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, ToastController } from '@ionic/angular';
+
+// Constants
 import { ROUTES } from '../../constants';
+
+// Enums
 import { PlanStatus } from './../../enums';
-import { Plan } from './../../models';
-import { PlanService } from './../../services';
+
+// Models
+import { SavingPlan } from './../../models';
+
+// Services
+import { SavingPlanService } from './../../services';
 
 @Component({
   selector: 'app-my-plans',
@@ -14,14 +22,14 @@ import { PlanService } from './../../services';
 export class MyPlansPage implements OnInit {
   constructor(
     private router: Router,
-    private planService: PlanService,
+    private planService: SavingPlanService,
     private alertController: AlertController,
     private toastController: ToastController
   ) {}
 
   PlanStatus = PlanStatus;
 
-  plans: Plan[] = [];
+  plans: SavingPlan[] = [];
 
   ngOnInit() {}
 
@@ -30,7 +38,7 @@ export class MyPlansPage implements OnInit {
   }
 
   getPlans = async () => {
-    const plans = await this.planService.getPlans();
+    const plans = await this.planService.getAllSavingPlans();
 
     this.plans = plans;
   };
@@ -39,13 +47,13 @@ export class MyPlansPage implements OnInit {
     this.router.navigateByUrl(`/${ROUTES.CREATE_PLAN}`);
   }
 
-  onUpdateClick(plan: Plan) {
+  onUpdateClick(plan: SavingPlan) {
     const route = `/${ROUTES.UPDATE_PLAN}`.replace(':id', plan.id.toString());
 
     this.router.navigateByUrl(route);
   }
 
-  async onDeleteClick(plan: Plan) {
+  async onDeleteClick(plan: SavingPlan) {
     const alert = await this.alertController.create({
       header: 'Confirmación',
       message: `Por favor confirme que desea eliminar el plan de ahorros '${plan.goal}'`,
@@ -66,7 +74,7 @@ export class MyPlansPage implements OnInit {
     const { role } = await alert.onDidDismiss();
 
     if (role === 'ok') {
-      await this.planService.deletePlan(plan);
+      await this.planService.deleteSavingPlan(plan);
 
       const toast = await this.toastController.create({
         message: `Plan '${plan.goal}' eliminado.`,

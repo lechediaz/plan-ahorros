@@ -39,7 +39,6 @@ export class NeedsBasicInfoGuard implements CanActivate {
     | UrlTree {
     return this.basicInfoService.basicInfo.pipe(
       map((basicInfo: BasicInfo) => {
-        console.log('Guard basicInfo subscription', basicInfo);
         if (basicInfo !== null) {
           return true;
         }

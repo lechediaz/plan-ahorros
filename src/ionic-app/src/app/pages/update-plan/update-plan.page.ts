@@ -1,9 +1,15 @@
 import { ToastController } from '@ionic/angular';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+
+// Constants
 import { ROUTES } from '../../constants';
-import { Plan } from './../../models';
-import { PlanService } from './../../services';
+
+// Models
+import { SavingPlan } from './../../models';
+
+// Services
+import { SavingPlanService } from './../../services';
 
 @Component({
   selector: 'app-update-plan',
@@ -12,23 +18,23 @@ import { PlanService } from './../../services';
 })
 export class UpdatePlanPage implements OnInit {
   constructor(
-    private planService: PlanService,
+    private planService: SavingPlanService,
     private route: ActivatedRoute,
     private router: Router,
     private toastController: ToastController
   ) {}
 
-  plan: Plan = null;
+  plan: SavingPlan = null;
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id')!;
 
-    this.planService.getPlanById(id).then((plan) => (this.plan = plan));
+    this.planService.getSavingPlanById(id).then((plan) => (this.plan = plan));
   }
 
-  async onSubmitClick(plan: Plan) {
+  async onSubmitClick(plan: SavingPlan) {
     try {
-      await this.planService.savePlan(plan);
+      await this.planService.updateSavingPlan(plan);
 
       const toast = await this.toastController.create({
         message: 'Plan actualizado correctamente',

@@ -1,6 +1,9 @@
 import { Interval, PlanStatus } from '../enums';
 
-export interface Plan {
+/**
+ * Saving plan representation.
+ */
+export interface SavingPlan {
   id?: number;
   income: number;
   interval: Interval;

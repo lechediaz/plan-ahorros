@@ -11,7 +11,7 @@ import {
 
 import { ToastController } from '@ionic/angular';
 import { Interval, PlanStatus } from '../../enums';
-import { Plan } from '../../models';
+import { SavingPlan } from '../../models';
 
 @Component({
   selector: 'app-plan-form',
@@ -31,9 +31,9 @@ export class PlanFormComponent implements OnInit, OnChanges {
 
   public Interval = Interval;
 
-  @Output() onSubmitClick = new EventEmitter<Plan>();
+  @Output() onSubmitClick = new EventEmitter<SavingPlan>();
 
-  @Input() planToEdit: Plan = null;
+  @Input() planToEdit: SavingPlan = null;
 
   form = new FormGroup({
     income: new FormControl('', [Validators.required, Validators.min(0)]),

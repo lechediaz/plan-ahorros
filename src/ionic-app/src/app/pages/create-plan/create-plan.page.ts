@@ -1,9 +1,15 @@
 import { Router } from '@angular/router';
 import { ToastController } from '@ionic/angular';
 import { Component, OnInit } from '@angular/core';
+
+// Constants
 import { ROUTES } from '../../constants';
-import { Plan } from './../../models';
-import { PlanService } from './../../services';
+
+// Models
+import { SavingPlan } from './../../models';
+
+// Services
+import { SavingPlanService } from './../../services';
 
 @Component({
   selector: 'app-create-plan',
@@ -12,16 +18,16 @@ import { PlanService } from './../../services';
 })
 export class CreatePlanPage implements OnInit {
   constructor(
-    private planService: PlanService,
+    private planService: SavingPlanService,
     private toastController: ToastController,
     private router: Router
   ) {}
 
   ngOnInit() {}
 
-  async onSubmitClick(plan: Plan) {
+  async onSubmitClick(plan: SavingPlan) {
     try {
-      await this.planService.savePlan(plan);
+      await this.planService.createSavingPlan(plan);
 
       const toast = await this.toastController.create({
         message: 'Plan creado correctamente',

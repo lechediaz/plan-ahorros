@@ -2,12 +2,14 @@ import { Platform } from '@ionic/angular';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
+// Constants
+import { SQLITE } from '../constants';
+
 // Models
 import { BasicInfo } from '../models';
 
 // Services
 import { DatabaseService } from './database.service';
-import { SQLITE } from '../constants';
 
 @Injectable({
   providedIn: 'root',
@@ -20,9 +22,10 @@ export class BasicInfoService {
 
   private _basicInfo = new BehaviorSubject<BasicInfo>(null);
 
+  /** The user's basic information. */
   basicInfo = this._basicInfo.asObservable();
 
-  private readonly BASIC_INFO_STORAGE_KEY = 'basic_info';
+  /** SQL string to query the user's basic information record */
   private readonly SELECT_ALL_STRING = `SELECT username, income FROM ${SQLITE.TABLE_BASIC_INFO}`;
 
   /**
@@ -66,7 +69,7 @@ export class BasicInfoService {
    * @returns The user's basic information.
    */
   private loadBasicInfoFromBrowser = () => {
-    let basicInfo = localStorage.getItem(this.BASIC_INFO_STORAGE_KEY);
+    let basicInfo = localStorage.getItem(SQLITE.TABLE_BASIC_INFO);
 
     if (typeof basicInfo === 'string') {
       basicInfo = JSON.parse(basicInfo);
@@ -109,16 +112,20 @@ export class BasicInfoService {
         [basicInfo.username, basicInfo.income]
       );
 
-      console.log(`Ha insertado ${resultInsert.rowsAffected} registros`);
+      console.log(
+        `${SQLITE.TABLE_BASIC_INFO}: ${resultInsert.rowsAffected} records inserted`
+      );
     } else {
-      // update
+      // Update
 
       const resultUpdate = await this.databaseService.storage.executeSql(
         `UPDATE ${SQLITE.TABLE_BASIC_INFO} SET username = ?, income = ?`,
         [basicInfo.username, basicInfo.income]
       );
 
-      console.log(`Ha actualizado ${resultUpdate.rowsAffected} registros`);
+      console.log(
+        `${SQLITE.TABLE_BASIC_INFO}: ${resultUpdate.rowsAffected} records updated`
+      );
     }
   };
 
@@ -129,6 +136,6 @@ export class BasicInfoService {
   saveBasicInfoAtBrowser = (basicInfo: BasicInfo | any) => {
     const basicInfoString = JSON.stringify(basicInfo);
 
-    localStorage.setItem(this.BASIC_INFO_STORAGE_KEY, basicInfoString);
+    localStorage.setItem(SQLITE.TABLE_BASIC_INFO, basicInfoString);
   };
 }
