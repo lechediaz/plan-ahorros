@@ -1,11 +1,15 @@
-import { Subscription } from 'rxjs';
-import { MenuService } from './services/menu.service';
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Platform } from '@ionic/angular';
-
-import { ROUTES } from 'src/app/constants';
-import { BasicInfoService, DatabaseService } from './services';
+import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
+
+// Constants
+import { ROUTES } from './constants';
+
+// Models
+import { BasicInfo } from './models';
+
+// Services
+import { BasicInfoService, DatabaseService, MenuService } from './services';
 
 @Component({
   selector: 'app-root',
@@ -28,24 +32,15 @@ export class AppComponent implements OnInit, OnDestroy {
   userName: string = '';
 
   constructor(
-    private platform: Platform,
     private basicInfoService: BasicInfoService,
     private databaseService: DatabaseService,
     public menuService: MenuService
-  ) {
-    this.platform
-      .ready()
-      .then(() => this.databaseService.prepareDatabase())
-      .then(() => this.basicInfoService.loadBasicInfo())
-      .then(() => {
-        console.log('App started successfully!.');
-      });
-  }
+  ) {}
 
   ngOnInit(): void {
     this.subscriptions.add(
       this.basicInfoService.basicInfo
-        .pipe(filter((basicInfo) => basicInfo !== null))
+        .pipe(filter((basicInfo: BasicInfo) => basicInfo !== null))
         .subscribe((basicInfo) => (this.userName = basicInfo.username))
     );
   }

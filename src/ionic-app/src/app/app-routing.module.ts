@@ -6,7 +6,7 @@ import { ROUTES } from './constants';
 const routes: Routes = [
   {
     path: '',
-    redirectTo: ROUTES.HOME,
+    redirectTo: ROUTES.START_APP,
     pathMatch: 'full',
   },
   {
@@ -44,6 +44,13 @@ const routes: Routes = [
     loadChildren: () =>
       import('./pages/basic-info/basic-info.module').then(
         (m) => m.BasicInfoPageModule
+      ),
+  },
+  {
+    path: ROUTES.START_APP,
+    loadChildren: () =>
+      import('./pages/start-app/start-app.module').then(
+        (m) => m.StartAppPageModule
       ),
   },
 ];

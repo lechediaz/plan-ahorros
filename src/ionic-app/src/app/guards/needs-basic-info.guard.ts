@@ -10,7 +10,14 @@ import {
 
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+
+// Constants
 import { ROUTES } from '../constants';
+
+// Models
+import { BasicInfo } from '../models';
+
+// Services
 import { BasicInfoService } from '../services';
 
 @Injectable({
@@ -31,7 +38,7 @@ export class NeedsBasicInfoGuard implements CanActivate {
     | boolean
     | UrlTree {
     return this.basicInfoService.basicInfo.pipe(
-      map((basicInfo) => {
+      map((basicInfo: BasicInfo) => {
         console.log('Guard basicInfo subscription', basicInfo);
         if (basicInfo !== null) {
           return true;
