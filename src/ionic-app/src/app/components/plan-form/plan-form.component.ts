@@ -72,8 +72,8 @@ export class PlanFormComponent implements OnInit, OnChanges {
       } = planToEditCurrent;
 
       this.form.setValue({
-        amount_to_save: amount_to_save.toString(),
-        bills: bills.toString(),
+        amount_to_save: amount_to_save !== 0 ? amount_to_save.toString() : '',
+        bills: bills !== 0 ? bills.toString() : '',
         fee,
         goal,
         id,

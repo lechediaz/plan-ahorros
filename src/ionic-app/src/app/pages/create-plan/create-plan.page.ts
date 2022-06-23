@@ -1,5 +1,5 @@
 import { Router } from '@angular/router';
-import { ToastController } from '@ionic/angular';
+import { Platform, ToastController } from '@ionic/angular';
 import { Component, OnInit } from '@angular/core';
 
 // Constants
@@ -9,7 +9,10 @@ import { ROUTES } from '../../constants';
 import { SavingPlan } from './../../models';
 
 // Services
-import { SavingPlanService } from './../../services';
+import { BasicInfoService, SavingPlanService } from './../../services';
+import { Subscription } from 'rxjs';
+import { Interval, PlanStatus } from 'src/app/enums';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-create-plan',
@@ -18,12 +21,38 @@ import { SavingPlanService } from './../../services';
 })
 export class CreatePlanPage implements OnInit {
   constructor(
-    private planService: SavingPlanService,
+    private platform: Platform,
+    private router: Router,
     private toastController: ToastController,
-    private router: Router
+    private planService: SavingPlanService,
+    private basicInfoService: BasicInfoService
   ) {}
 
-  ngOnInit() {}
+  plan: SavingPlan = null;
+
+  subscriptions = new Subscription();
+
+  ngOnInit() {
+    this.platform.ready().then(() => {
+      this.subscriptions.add(
+        this.basicInfoService.basicInfo
+          .pipe(filter((basicInfo) => basicInfo !== null))
+          .subscribe((basicInfo) => {
+            this.plan = {
+              amount_to_save: 0,
+              bills: 0,
+              fee: 0,
+              goal: '',
+              income: basicInfo.income,
+              interval: Interval.Weekly,
+              status: PlanStatus.Draft,
+              years: 1,
+              id: 0,
+            };
+          })
+      );
+    });
+  }
 
   async onSubmitClick(plan: SavingPlan) {
     try {

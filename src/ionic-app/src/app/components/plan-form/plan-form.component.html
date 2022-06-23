@@ -61,8 +61,8 @@
   </ion-item>
 
   <ion-item>
-    <ion-label>Tarifa</ion-label>
-    <ion-input formControlName="fee" readonly="true" type="number"></ion-input>
+    <ion-label slot="start">Tarifa</ion-label>
+    <ion-label slot="end">{{ form.value.fee | currency }}</ion-label>
   </ion-item>
 
   <ion-button

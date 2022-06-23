@@ -9,5 +9,8 @@
 </ion-header>
 
 <ion-content>
-  <app-plan-form (onSubmitClick)="onSubmitClick($event)"></app-plan-form>
+  <app-plan-form
+    [planToEdit]="plan"
+    (onSubmitClick)="onSubmitClick($event)"
+  ></app-plan-form>
 </ion-content>

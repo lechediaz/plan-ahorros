@@ -18,7 +18,7 @@ import { ROUTES } from '../constants';
 import { BasicInfo } from '../models';
 
 // Services
-import { BasicInfoService } from '../services';
+import { BasicInfoService, MenuService } from '../services';
 
 @Injectable({
   providedIn: 'root',
@@ -26,7 +26,8 @@ import { BasicInfoService } from '../services';
 export class NeedsBasicInfoGuard implements CanActivate {
   constructor(
     private router: Router,
-    private basicInfoService: BasicInfoService
+    private basicInfoService: BasicInfoService,
+    private menuService: MenuService
   ) {}
 
   canActivate(
@@ -40,6 +41,8 @@ export class NeedsBasicInfoGuard implements CanActivate {
     return this.basicInfoService.basicInfo.pipe(
       map((basicInfo: BasicInfo) => {
         if (basicInfo !== null) {
+          this.menuService.setDisableMenu();
+
           return true;
         }
 

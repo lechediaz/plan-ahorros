@@ -6,7 +6,7 @@ import { Platform } from '@ionic/angular';
 import { ROUTES } from '../../constants';
 
 // Services
-import { BasicInfoService, DatabaseService } from '../../services';
+import { BasicInfoService, DatabaseService, MenuService } from '../../services';
 
 @Component({
   selector: 'app-start-app',
@@ -18,10 +18,13 @@ export class StartAppPage implements OnInit {
     private platform: Platform,
     private router: Router,
     private basicInfoService: BasicInfoService,
-    private databaseService: DatabaseService
+    private databaseService: DatabaseService,
+    private menuService: MenuService
   ) {}
 
   ngOnInit() {
+    this.menuService.setDisableMenu(true);
+
     this.platform
       .ready()
       .then(() => {
