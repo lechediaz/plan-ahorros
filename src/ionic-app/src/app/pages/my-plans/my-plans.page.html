@@ -8,7 +8,7 @@
   <ion-list>
     <ion-item-sliding *ngFor="let plan of plans">
       <ion-item-options side="start" *ngIf="plan.status === PlanStatus.Draft">
-        <ion-item-option color="success"
+        <ion-item-option color="success" (click)="onStartClick(plan)"
           ><ion-icon name="play" slot="start"></ion-icon>
           Iniciar</ion-item-option
         >

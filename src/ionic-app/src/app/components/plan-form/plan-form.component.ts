@@ -12,6 +12,7 @@ import {
 import { ToastController } from '@ionic/angular';
 import { Interval, PlanStatus } from '../../enums';
 import { SavingPlan } from '../../models';
+import { roundDecimal } from '../../utils';
 
 @Component({
   selector: 'app-plan-form',
@@ -136,14 +137,15 @@ export class PlanFormComponent implements OnInit, OnChanges {
         dividend = 26.0714;
         borrowingCapacity /= 2.17262;
         break;
-      case Interval.Monthly:
+      default:
+        // Monthly
         dividend = 12;
         break;
     }
 
     dividend *= yearsValue;
 
-    const fee = amount_to_save / dividend;
+    const fee = roundDecimal(amount_to_save / dividend, 2);
 
     if (fee > borrowingCapacity) {
       this.toastController

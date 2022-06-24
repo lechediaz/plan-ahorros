@@ -1,12 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, ToastController } from '@ionic/angular';
+import * as dayjs from 'dayjs';
+import { calculateNewDate, roundDecimal } from '../../utils';
 
 // Constants
 import { ROUTES } from '../../constants';
 
 // Enums
-import { PlanStatus } from './../../enums';
+import { Interval, PlanStatus } from './../../enums';
 
 // Models
 import { SavingPlan } from './../../models';
@@ -78,11 +80,56 @@ export class MyPlansPage implements OnInit {
 
       const toast = await this.toastController.create({
         message: `Plan '${plan.goal}' eliminado.`,
+        duration: 3000,
       });
 
       await toast.present();
 
       await this.getPlans();
+    }
+  }
+
+  async onStartClick(plan: SavingPlan) {
+    let multiple = 1;
+
+    switch (plan.interval) {
+      case Interval.Weekly:
+        multiple = 52.1429;
+        break;
+      case Interval.Biweekly:
+        multiple = 26.0714;
+        break;
+      default:
+        // Monthly
+        multiple = 12;
+        break;
+    }
+
+    multiple *= plan.years;
+
+    let newDate = new Date();
+    let subTotal = 0;
+
+    for (let year = 0; year < multiple; year++) {
+      let fee = plan.fee;
+      newDate = calculateNewDate(newDate, plan.interval);
+
+      if (
+        [Interval.Biweekly, Interval.Weekly].includes(plan.interval) &&
+        year >= multiple - 1
+      ) {
+        fee = roundDecimal(plan.amount_to_save - subTotal, 2);
+        subTotal = roundDecimal(subTotal + fee, 2);
+      } else {
+        subTotal = roundDecimal(subTotal + plan.fee, 2);
+      }
+
+      console.log('Data', {
+        nuevaFecha: dayjs(newDate).format('YYYY-MM-DD'),
+        subTotal,
+        fee,
+        year: year + 1,
+      });
     }
   }
 }

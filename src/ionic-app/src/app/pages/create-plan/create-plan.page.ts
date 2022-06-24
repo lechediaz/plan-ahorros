@@ -44,7 +44,7 @@ export class CreatePlanPage implements OnInit {
               fee: 0,
               goal: '',
               income: basicInfo.income,
-              interval: Interval.Weekly,
+              interval: Interval.Monthly,
               status: PlanStatus.Draft,
               years: 1,
               id: 0,
