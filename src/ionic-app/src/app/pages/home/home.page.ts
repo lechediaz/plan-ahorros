@@ -1,4 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { SavingPlanDetail } from 'src/app/models';
+
+// Service
+import { SavingPlanDetailService } from '../../services';
 
 @Component({
   selector: 'app-home',
@@ -6,10 +10,13 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./home.page.scss'],
 })
 export class HomePage implements OnInit {
+  constructor(private savingPlanDetailService: SavingPlanDetailService) {}
 
-  constructor() { }
+  nextSavingPlanDetails: SavingPlanDetail[] = [];
 
   ngOnInit() {
+    this.savingPlanDetailService.getNextSavingDetails().then((details) => {
+      this.nextSavingPlanDetails = details;
+    });
   }
-
 }

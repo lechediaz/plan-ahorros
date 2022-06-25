@@ -1,3 +1,12 @@
-<p>
-  fee-card works!
-</p>
+<ion-card *ngIf="savingPlanDetail !== null">
+  <ion-card-header>
+    <ion-card-title>Card Title</ion-card-title>
+    <ion-card-subtitle>{{ savingPlanDetail.saving_date | date:'YYYY-MM-dd' }}</ion-card-subtitle>
+  </ion-card-header>
+
+  <ion-card-content>
+    Cada vez te acercas más a tu meta de ahorro, esta vez tendrás que ahorrar {{ savingPlanDetail.fee | currency: "COP" }}
+  </ion-card-content>
+</ion-card>
+
+<p *ngIf="savingPlanDetail === null">NO hay nada</p>

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Platform } from '@ionic/angular';
 
 // Enums
-import { Interval } from '../enums';
+import { Interval, PlanStatus } from '../enums';
 
 // Models
 import { SavingPlan, SavingPlanDetail } from '../models';
@@ -93,14 +93,26 @@ export class SavingPlanDetailService {
 
   /**
    * Allows to create saving plan details on the browser.
-   * @param details The saving plan details to create.
+   * @param detailsToCreate The saving plan details to create.
    */
-  private createSavingPlanDetailsOnBrowser = (details: SavingPlanDetail[]) => {
+  private createSavingPlanDetailsOnBrowser = (
+    detailsToCreate: SavingPlanDetail[]
+  ) => {
+    let detailsAsString = localStorage.getItem(SQLITE.TABLE_SAVING_PLAN_DETAIL);
+
+    let actualDetails: SavingPlanDetail[] = [];
+
+    if (detailsAsString !== null) {
+      actualDetails = JSON.parse(detailsAsString);
+    }
+
     let maxId = this.getMaxIdFromBrowser();
 
-    details = details.map((d) => ({ ...d, id: ++maxId }));
+    detailsToCreate = detailsToCreate.map((d) => ({ ...d, id: ++maxId }));
 
-    const detailsAsString = JSON.stringify(details);
+    actualDetails.push(...detailsToCreate);
+
+    detailsAsString = JSON.stringify(actualDetails);
 
     localStorage.setItem(SQLITE.TABLE_SAVING_PLAN_DETAIL, detailsAsString);
   };
@@ -169,4 +181,92 @@ export class SavingPlanDetailService {
 
     return maxId;
   }
+
+  /**
+   * Gets the next saving plan details to complete.
+   * @returns Next saving plan details.
+   */
+  getNextSavingDetails = async (): Promise<SavingPlanDetail[]> => {
+    if (this.platform.is('cordova')) {
+      return await this.getNextSavingDetailsFromDevice();
+    } else {
+      return this.getNextSavingDetailsFromBrowser();
+    }
+  };
+
+  /**
+   * Gets the next saving plan details to complete from device.
+   * @returns All the saving plans from the device.
+   */
+  private getNextSavingDetailsFromDevice = async (): Promise<
+    SavingPlanDetail[]
+  > => {
+    const resultQuery = await this.databaseService.storage.executeSql(
+      `SELECT * FROM saving_plan_detail AS d0
+      INNER JOIN (
+        SELECT DISTINCT FIRST_VALUE(d.id) OVER (
+          PARTITION BY d.saving_plan_id
+          ORDER BY datetime(d.saving_date, 'localtime')
+        ) AS id
+        FROM saving_plan AS p
+        INNER JOIN saving_plan_detail AS d ON p.id = d.saving_plan_id
+        WHERE p.status = 1 AND d.saving_made = 0
+      ) AS d1 ON d0.id = d1.id`,
+      []
+    );
+
+    let savingPlanDetails: SavingPlanDetail[] = [];
+
+    if (resultQuery.rows.length > 0) {
+      for (let index = 0; index < resultQuery.rows.length; index++) {
+        const savingPlanDetail = resultQuery.rows.item(index);
+
+        savingPlanDetails.push(savingPlanDetail);
+      }
+    }
+
+    return savingPlanDetails;
+  };
+
+  /**
+   * Gets the next saving plan details to complete from browser.
+   * @returns All the saving plans from the browser.
+   */
+  private getNextSavingDetailsFromBrowser = (): SavingPlanDetail[] => {
+    const savingPlansAsString = localStorage.getItem(SQLITE.TABLE_SAVING_PLAN);
+    let savingPlans: SavingPlan[] = [];
+
+    if (savingPlansAsString !== null) {
+      savingPlans = JSON.parse(savingPlansAsString);
+    }
+
+    // Here we have all the started saving plans.
+    savingPlans = savingPlans.filter((p) => p.status === PlanStatus.Started);
+
+    let nextSavingPlanDetails: SavingPlanDetail[] = [];
+
+    const detailsAsString = localStorage.getItem(
+      SQLITE.TABLE_SAVING_PLAN_DETAIL
+    );
+
+    if (detailsAsString !== null) {
+      let details: SavingPlanDetail[] = JSON.parse(detailsAsString);
+
+      // Filter the saving plan details where they are not saving_made, then sort them by saving_date.
+      details = details
+        .filter((d) => d.saving_made === 0)
+        .sort(
+          (a, b) =>
+            new Date(a.saving_date).getTime() -
+            new Date(b.saving_date).getTime()
+        );
+
+      // Get the first saving plan detail by saving plan.
+      nextSavingPlanDetails = savingPlans.map((p) =>
+        details.find((d) => d.saving_plan_id === p.id)
+      );
+    }
+
+    return nextSavingPlanDetails;
+  };
 }
