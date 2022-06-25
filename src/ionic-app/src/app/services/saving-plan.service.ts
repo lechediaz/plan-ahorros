@@ -37,7 +37,7 @@ export class SavingPlanService {
    * @param id The saving plan id.
    * @returns The saving plan.
    */
-  getSavingPlanById = async (id: number | string) => {
+  getSavingPlanById = async (id: number): Promise<SavingPlan> => {
     let savingPlan: SavingPlan | any = null;
 
     if (this.platform.is('cordova')) {
@@ -54,13 +54,15 @@ export class SavingPlanService {
    * @param id The saving plan id.
    * @returns The saving plan.
    */
-  private getSavingPlanByIdFromDevice = async (id: number | string) => {
+  private getSavingPlanByIdFromDevice = async (
+    id: number
+  ): Promise<SavingPlan> => {
     const resultQuery = await this.databaseService.storage.executeSql(
       this.SELECT_SAVING_PLAN_BY_ID,
       [id]
     );
 
-    let savingPlan = null;
+    let savingPlan: SavingPlan = null;
 
     if (resultQuery.rows.length > 0) {
       savingPlan = resultQuery.rows.item(0);
@@ -74,11 +76,14 @@ export class SavingPlanService {
    * @param id The saving plan id.
    * @returns The saving plan.
    */
-  private getSavingPlanByIdFromBrowser = (id: number | string) => {
-    let savingPlan = localStorage.getItem(this.buildkey(id));
+  private getSavingPlanByIdFromBrowser = (id: number): SavingPlan => {
+    let savingPlansAsString = localStorage.getItem(SQLITE.TABLE_SAVING_PLAN);
+    let savingPlan: SavingPlan = null;
 
-    if (typeof savingPlan === 'string') {
-      savingPlan = JSON.parse(savingPlan);
+    if (typeof savingPlansAsString === 'string') {
+      const savingPlans = JSON.parse(savingPlansAsString);
+
+      savingPlan = savingPlans.find((p: SavingPlan) => p.id === id);
     }
 
     return savingPlan;
@@ -88,8 +93,8 @@ export class SavingPlanService {
    * Gets all the saving plans.
    * @returns All the saving plans.
    */
-  getAllSavingPlans = async () => {
-    let plans: SavingPlan[] | any[] = [];
+  getAllSavingPlans = async (): Promise<SavingPlan[]> => {
+    let plans: SavingPlan[] = [];
 
     if (this.platform.is('cordova')) {
       plans = await this.getAllSavingPlansFromDevice();
@@ -104,13 +109,13 @@ export class SavingPlanService {
    * Gets all the saving plans from the device.
    * @returns All the saving plans from the device.
    */
-  private getAllSavingPlansFromDevice = async () => {
+  private getAllSavingPlansFromDevice = async (): Promise<SavingPlan[]> => {
     const resultQuery = await this.databaseService.storage.executeSql(
       this.SELECT_ALL_SAVING_PLANs,
       []
     );
 
-    let savingPlans = [];
+    let savingPlans: SavingPlan[] = [];
 
     if (resultQuery.rows.length > 0) {
       for (let index = 0; index < resultQuery.rows.length; index++) {
@@ -127,10 +132,13 @@ export class SavingPlanService {
    * Gets all the saving plans from the browser.
    * @returns All the saving plans from the browser.
    */
-  private getAllSavingPlansFromBrowser = () => {
-    const savingPlans = Object.entries(localStorage)
-      .filter(([key, value]) => key.startsWith(SQLITE.TABLE_SAVING_PLAN))
-      .map(([key, value]) => JSON.parse(value));
+  private getAllSavingPlansFromBrowser = (): SavingPlan[] => {
+    const savingPlansAsString = localStorage.getItem(SQLITE.TABLE_SAVING_PLAN);
+    let savingPlans: SavingPlan[] = [];
+
+    if (savingPlansAsString !== null) {
+      savingPlans = JSON.parse(savingPlansAsString);
+    }
 
     return savingPlans;
   };
@@ -139,7 +147,7 @@ export class SavingPlanService {
    * Creates a new saving plan.
    * @param savingPlan The saving plan.
    */
-  createSavingPlan = async (savingPlan: SavingPlan) => {
+  createSavingPlan = async (savingPlan: SavingPlan): Promise<void> => {
     if (this.platform.is('cordova')) {
       await this.createSavingPlanOnDevice(savingPlan);
     } else {
@@ -151,7 +159,9 @@ export class SavingPlanService {
    * Creates a new saving plan on the device.
    * @param savingPlan The saving plan on the device.
    */
-  private createSavingPlanOnDevice = async (savingPlan: SavingPlan) => {
+  private createSavingPlanOnDevice = async (
+    savingPlan: SavingPlan
+  ): Promise<void> => {
     const insertSQL = `INSERT INTO ${SQLITE.TABLE_SAVING_PLAN} (
       income,
       interval,
@@ -196,22 +206,29 @@ export class SavingPlanService {
    * @param savingPlan The saving plan on the browser.
    */
   private createSavingPlanOnBrowser = (savingPlan: SavingPlan) => {
-    let keys = Object.keys(localStorage).filter((k) =>
-      k.startsWith(SQLITE.TABLE_SAVING_PLAN)
-    );
+    let plansAsString = localStorage.getItem(SQLITE.TABLE_SAVING_PLAN);
+    let plans: SavingPlan[] = [];
 
-    savingPlan.id = this.getnewId(keys);
+    if (plansAsString !== null) {
+      plans = JSON.parse(plansAsString);
+    }
 
-    const planstring = JSON.stringify(savingPlan);
+    const maxId = this.getMaxIdFromBrowser();
 
-    localStorage.setItem(this.buildkey(savingPlan.id), planstring);
+    savingPlan.id = maxId + 1;
+
+    plans.push(savingPlan);
+
+    plansAsString = JSON.stringify(plans);
+
+    localStorage.setItem(SQLITE.TABLE_SAVING_PLAN, plansAsString);
   };
 
   /**
    * Updates a saving plan.
    * @param savingPlan The saving plan.
    */
-  updateSavingPlan = async (savingPlan: SavingPlan) => {
+  updateSavingPlan = async (savingPlan: SavingPlan): Promise<void> => {
     if (this.platform.is('cordova')) {
       await this.updateSavingPlanOnDevice(savingPlan);
     } else {
@@ -223,7 +240,9 @@ export class SavingPlanService {
    * Updates a saving plan on the device.
    * @param savingPlan The saving plan on the device.
    */
-  private updateSavingPlanOnDevice = async (savingPlan: SavingPlan) => {
+  private updateSavingPlanOnDevice = async (
+    savingPlan: SavingPlan
+  ): Promise<void> => {
     const updateSQL = `UPDATE ${SQLITE.TABLE_SAVING_PLAN} SET
       income = ?,
       interval = ?,
@@ -260,16 +279,31 @@ export class SavingPlanService {
    * @param savingPlan The saving plan on the browser.
    */
   private updateSavingPlanOnBrowser = (savingPlan: SavingPlan) => {
-    const planstring = JSON.stringify(savingPlan);
+    let plansAsString = localStorage.getItem(SQLITE.TABLE_SAVING_PLAN);
+    let plans: SavingPlan[] = [];
 
-    localStorage.setItem(this.buildkey(savingPlan.id), planstring);
+    if (plansAsString !== null) {
+      plans = JSON.parse(plansAsString);
+    }
+
+    plans = plans.map((p: SavingPlan) => {
+      if (p.id === savingPlan.id) {
+        p = { ...p, ...savingPlan };
+      }
+
+      return p;
+    });
+
+    plansAsString = JSON.stringify(plans);
+
+    localStorage.setItem(SQLITE.TABLE_SAVING_PLAN, plansAsString);
   };
 
   /**
    * Deletes a saving plan.
    * @param savingPlan The saving plan.
    */
-  deleteSavingPlan = async (savingPlan: SavingPlan) => {
+  deleteSavingPlan = async (savingPlan: SavingPlan): Promise<void> => {
     if (this.platform.is('cordova')) {
       await this.deleteSavingPlanFromDevice(savingPlan);
     } else {
@@ -281,7 +315,9 @@ export class SavingPlanService {
    * Deletes a saving plan from the device.
    * @param savingPlan The saving plan.
    */
-  private deleteSavingPlanFromDevice = async (savingPlan: SavingPlan) => {
+  private deleteSavingPlanFromDevice = async (
+    savingPlan: SavingPlan
+  ): Promise<void> => {
     const deleteSQL = `DELETE FROM ${SQLITE.TABLE_SAVING_PLAN} WHERE id = ?`;
 
     const resultDelete = await this.databaseService.storage.executeSql(
@@ -298,39 +334,39 @@ export class SavingPlanService {
    * Deletes a saving plan from the browser.
    * @param savingPlan The saving plan.
    */
-  private deleteSavingPlanFromBrowser = (savingPlan: SavingPlan) =>
-    localStorage.removeItem(this.buildkey(savingPlan.id));
+  private deleteSavingPlanFromBrowser = (savingPlan: SavingPlan) => {
+    let plansAsString = localStorage.getItem(SQLITE.TABLE_SAVING_PLAN);
+    let plans: SavingPlan[] = [];
 
-  /**
-   * Autoincrements id from localstorage keys.
-   * @param keys Array of localstorage keys.
-   * @returns New Id.
-   */
-  private getnewId(keys: string[] | any) {
-    let ids = [0];
-
-    if (keys.length > 0) {
-      ids = keys.map((k) => {
-        const idString = k.substring(k.indexOf('.') + 1);
-        const id = parseInt(idString);
-
-        return id;
-      });
+    if (plansAsString !== null) {
+      plans = JSON.parse(plansAsString);
     }
 
-    const maxId = Math.max(...ids);
-    const newId = maxId + 1;
+    plans = plans.filter((p: SavingPlan) => p.id !== savingPlan.id);
 
-    return newId;
-  }
+    plansAsString = JSON.stringify(plans);
+
+    localStorage.setItem(SQLITE.TABLE_SAVING_PLAN, plansAsString);
+  };
 
   /**
-   * Creates a key from a Id.
-   * @param id The id.
-   * @returns Key from Id.
+   * Gets the max id from saving plans saved on browser.
+   * @returns The max Id.
    */
-  private buildkey = (id: number | string) =>
-    `${SQLITE.TABLE_SAVING_PLAN}.${id}`;
+  private getMaxIdFromBrowser() {
+    let maxId = 0;
+
+    const plansAsString = localStorage.getItem(SQLITE.TABLE_SAVING_PLAN);
+
+    if (plansAsString !== null) {
+      const plans = JSON.parse(plansAsString);
+      const ids = plans.map((d) => d.id);
+
+      maxId = Math.max(...ids);
+    }
+
+    return maxId;
+  }
 
   /**
    * Calculate the fee according the saving plan.

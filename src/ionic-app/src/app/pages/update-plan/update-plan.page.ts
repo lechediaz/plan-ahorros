@@ -29,7 +29,9 @@ export class UpdatePlanPage implements OnInit {
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id')!;
 
-    this.planService.getSavingPlanById(id).then((plan) => (this.plan = plan));
+    this.planService
+      .getSavingPlanById(Number(id))
+      .then((plan) => (this.plan = plan));
   }
 
   async onSubmitClick(plan: SavingPlan) {
