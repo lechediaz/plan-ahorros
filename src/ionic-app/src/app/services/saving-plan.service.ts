@@ -251,7 +251,9 @@ export class SavingPlanService {
       years = ?,
       goal = ?,
       fee = ?,
-      status = ?
+      status = ?,
+      started_date = ?,
+      completed_date = ?
     WHERE id = ?`;
 
     const resultUpdate = await this.databaseService.storage.executeSql(
@@ -265,6 +267,8 @@ export class SavingPlanService {
         savingPlan.goal,
         savingPlan.fee,
         savingPlan.status,
+        savingPlan.started_date,
+        savingPlan.completed_date,
         savingPlan.id,
       ]
     );

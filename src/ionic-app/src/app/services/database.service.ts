@@ -69,6 +69,7 @@ export class DatabaseService {
    * @returns Promise
    */
   private createSavingPlanDetailTable = () =>
+    // TODO Al parecer al eliminar un plan no elimina sus detalle, investigar por qué.
     this.storage.executeSql(
       `CREATE TABLE IF NOT EXISTS ${SQLITE.TABLE_SAVING_PLAN_DETAIL} (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -78,7 +79,7 @@ export class DatabaseService {
           fee REAL NOT NULL,
           quota_number INTEGER NOT NULL,
           saving_made INTEGER NOT NULL,
-          FOREIGN KEY (saving_plan_id) REFERENCES ${SQLITE.TABLE_SAVING_PLAN}(id) ON DELETE CASCADE
+          FOREIGN KEY (saving_plan_id) REFERENCES ${SQLITE.TABLE_SAVING_PLAN} (id) ON DELETE CASCADE
         )`,
       []
     );

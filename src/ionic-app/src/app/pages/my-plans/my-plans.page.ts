@@ -93,7 +93,12 @@ export class MyPlansPage implements OnInit {
 
     await this.savingPlanDetailService.createSavingPlanDetails(detailsToCreate);
 
-    // TODO cambiar estado del plan
+    plan.status = PlanStatus.Started;
+    plan.started_date = new Date().toISOString();
+
+    await this.savingPlanService.updateSavingPlan(plan);
+
+    await this.getPlans();
 
     const toast = await this.toastController.create({
       message: `Plan '${plan.goal}' iniciado.`,
