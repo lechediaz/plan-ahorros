@@ -24,6 +24,7 @@ export class DatabaseService {
 
     await this.createBasicInfoTable();
     await this.createSavingPlanTable();
+    await this.createSavingPlanDetailTable();
 
     console.log('Database ready.');
   };
@@ -36,13 +37,13 @@ export class DatabaseService {
     await this.storage.executeSql(
       `CREATE TABLE IF NOT EXISTS ${SQLITE.TABLE_BASIC_INFO} (
         username TEXT NOT NULL,
-        income INTEGER NOT NULL DEFAULT 0
+        income REAL NOT NULL DEFAULT 0
       );`,
       []
     );
 
   /**
-   * Creates the basic info table.
+   * Creates the saving plantable.
    * @returns Promise
    */
   private createSavingPlanTable = () => {
@@ -51,14 +52,34 @@ export class DatabaseService {
     return this.storage.executeSql(
       `CREATE TABLE IF NOT EXISTS ${SQLITE.TABLE_SAVING_PLAN} (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
-          income INTEGER NOT NULL,
-          interval INTEGER DEFAULT 0,
-          amount_to_save INTEGER,
-          bills INTEGER,
-          years INTEGER,
-          goal TEXT,
-          fee INTEGER,
-          status INTEGER
+          income REAL NOT NULL,
+          interval INTEGER NOT NULL DEFAULT 0,
+          amount_to_save REAL NOT NULL,
+          bills REAL NOT NULL,
+          years INTEGER NOT NULL,
+          goal TEXT NOT NULL,
+          fee REAL NOT NULL,
+          status INTEGER NOT NULL
+        )`,
+      []
+    );
+  };
+
+  /**
+   * Creates the saving plan detail table.
+   * @returns Promise
+   */
+  private createSavingPlanDetailTable = () => {
+    return this.storage.executeSql(
+      `CREATE TABLE IF NOT EXISTS ${SQLITE.TABLE_SAVING_PLAN_DETAIL} (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          saving_plan_id INTEGER NOT NULL,
+          saving_date TEXT NOT NULL,
+          subtotal REAL NOT NULL,
+          fee REAL NOT NULL,
+          quota_number INTEGER NOT NULL,
+          saving_made INTEGER NOT NULL,
+          FOREIGN KEY (saving_plan_id) REFERENCES ${SQLITE.TABLE_SAVING_PLAN}(id) ON DELETE CASCADE
         )`,
       []
     );
