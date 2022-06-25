@@ -13,6 +13,6 @@ export interface SavingPlan {
   goal: string;
   fee: number;
   status: PlanStatus;
-  startedDate?: number;
-  completedDate?: number;
+  started_date?: string;
+  completed_date?: string;
 }

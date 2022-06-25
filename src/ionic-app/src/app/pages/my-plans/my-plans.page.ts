@@ -1,20 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlertController, ToastController } from '@ionic/angular';
-import * as dayjs from 'dayjs';
-import { calculateNewDate, roundDecimal } from '../../utils';
 
 // Constants
 import { ROUTES } from '../../constants';
 
 // Enums
-import { Interval, PlanStatus } from './../../enums';
+import { PlanStatus } from './../../enums';
 
 // Models
 import { SavingPlan } from './../../models';
 
 // Services
-import { SavingPlanService } from './../../services';
+import { SavingPlanDetailService, SavingPlanService } from './../../services';
 
 @Component({
   selector: 'app-my-plans',
@@ -24,9 +22,10 @@ import { SavingPlanService } from './../../services';
 export class MyPlansPage implements OnInit {
   constructor(
     private router: Router,
-    private planService: SavingPlanService,
     private alertController: AlertController,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private savingPlanService: SavingPlanService,
+    private savingPlanDetailService: SavingPlanDetailService
   ) {}
 
   PlanStatus = PlanStatus;
@@ -40,7 +39,7 @@ export class MyPlansPage implements OnInit {
   }
 
   getPlans = async () => {
-    const plans = await this.planService.getAllSavingPlans();
+    const plans = await this.savingPlanService.getAllSavingPlans();
 
     this.plans = plans;
   };
@@ -76,7 +75,7 @@ export class MyPlansPage implements OnInit {
     const { role } = await alert.onDidDismiss();
 
     if (role === 'ok') {
-      await this.planService.deleteSavingPlan(plan);
+      await this.savingPlanService.deleteSavingPlan(plan);
 
       const toast = await this.toastController.create({
         message: `Plan '${plan.goal}' eliminado.`,
@@ -89,47 +88,18 @@ export class MyPlansPage implements OnInit {
     }
   }
 
-  async onStartClick(plan: SavingPlan) {
-    let multiple = 1;
+  onStartClick = async (plan: SavingPlan) => {
+    const detailsToCreate = this.savingPlanDetailService.generateQuotas(plan);
 
-    switch (plan.interval) {
-      case Interval.Weekly:
-        multiple = 52.1429;
-        break;
-      case Interval.Biweekly:
-        multiple = 26.0714;
-        break;
-      default:
-        // Monthly
-        multiple = 12;
-        break;
-    }
+    await this.savingPlanDetailService.createSavingPlanDetails(detailsToCreate);
 
-    multiple *= plan.years;
+    // TODO cambiar estado del plan
 
-    let newDate = new Date();
-    let subTotal = 0;
+    const toast = await this.toastController.create({
+      message: `Plan '${plan.goal}' iniciado.`,
+      duration: 3000,
+    });
 
-    for (let year = 0; year < multiple; year++) {
-      let fee = plan.fee;
-      newDate = calculateNewDate(newDate, plan.interval);
-
-      if (
-        [Interval.Biweekly, Interval.Weekly].includes(plan.interval) &&
-        year >= multiple - 1
-      ) {
-        fee = roundDecimal(plan.amount_to_save - subTotal, 2);
-        subTotal = roundDecimal(subTotal + fee, 2);
-      } else {
-        subTotal = roundDecimal(subTotal + plan.fee, 2);
-      }
-
-      console.log('Data', {
-        nuevaFecha: dayjs(newDate).format('YYYY-MM-DD'),
-        subTotal,
-        fee,
-        year: year + 1,
-      });
-    }
-  }
+    await toast.present();
+  };
 }

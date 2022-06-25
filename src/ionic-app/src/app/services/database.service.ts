@@ -33,8 +33,8 @@ export class DatabaseService {
    * Creates the basic info table.
    * @returns Promise
    */
-  private createBasicInfoTable = async () =>
-    await this.storage.executeSql(
+  private createBasicInfoTable = () =>
+    this.storage.executeSql(
       `CREATE TABLE IF NOT EXISTS ${SQLITE.TABLE_BASIC_INFO} (
         username TEXT NOT NULL,
         income REAL NOT NULL DEFAULT 0
@@ -46,10 +46,8 @@ export class DatabaseService {
    * Creates the saving plantable.
    * @returns Promise
    */
-  private createSavingPlanTable = () => {
-    // TODO Añadir los campos startedDate y completedDate, porque son todos raros en SQLite
-
-    return this.storage.executeSql(
+  private createSavingPlanTable = () =>
+    this.storage.executeSql(
       `CREATE TABLE IF NOT EXISTS ${SQLITE.TABLE_SAVING_PLAN} (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           income REAL NOT NULL,
@@ -59,18 +57,19 @@ export class DatabaseService {
           years INTEGER NOT NULL,
           goal TEXT NOT NULL,
           fee REAL NOT NULL,
-          status INTEGER NOT NULL
+          status INTEGER NOT NULL,
+          started_date TEXT,
+          completed_date TEXT
         )`,
       []
     );
-  };
 
   /**
    * Creates the saving plan detail table.
    * @returns Promise
    */
-  private createSavingPlanDetailTable = () => {
-    return this.storage.executeSql(
+  private createSavingPlanDetailTable = () =>
+    this.storage.executeSql(
       `CREATE TABLE IF NOT EXISTS ${SQLITE.TABLE_SAVING_PLAN_DETAIL} (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           saving_plan_id INTEGER NOT NULL,
@@ -83,5 +82,4 @@ export class DatabaseService {
         )`,
       []
     );
-  };
 }
