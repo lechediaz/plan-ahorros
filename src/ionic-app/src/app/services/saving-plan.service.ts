@@ -1,8 +1,11 @@
-import { Platform } from '@ionic/angular';
+import { Platform, ToastController } from '@ionic/angular';
 import { Injectable } from '@angular/core';
 
 // Constants
 import { SQLITE } from '../constants';
+
+// Enums
+import { Interval } from '../enums';
 
 // Models
 import { SavingPlan } from '../models';
@@ -10,13 +13,17 @@ import { SavingPlan } from '../models';
 // Services
 import { DatabaseService } from './database.service';
 
+// Utils
+import { roundDecimal } from '../utils';
+
 @Injectable({
   providedIn: 'root',
 })
 export class SavingPlanService {
   constructor(
     private platform: Platform,
-    private databaseService: DatabaseService
+    private databaseService: DatabaseService,
+    private toastController: ToastController
   ) {}
 
   /** SQL string to query a saving plan by id. */
@@ -324,4 +331,48 @@ export class SavingPlanService {
    */
   private buildkey = (id: number | string) =>
     `${SQLITE.TABLE_SAVING_PLAN}.${id}`;
+
+  /**
+   * Calculate the fee according the saving plan.
+   * @param plan The saving plan.
+   * @returns Fee
+   */
+  calculateFee = async (plan: SavingPlan | any) => {
+    let { amount_to_save, income, interval, bills, years } = plan;
+
+    let borrowingCapacity = income - bills;
+    let dividend = 0;
+
+    switch (interval) {
+      case Interval.Weekly:
+        dividend = 52.1429;
+        borrowingCapacity /= 4.34524;
+        break;
+      case Interval.Biweekly:
+        dividend = 26.0714;
+        borrowingCapacity /= 2.17262;
+        break;
+      default:
+        // Monthly
+        dividend = 12;
+        break;
+    }
+
+    dividend *= years;
+
+    const fee = roundDecimal(amount_to_save / dividend, 2);
+
+    if (fee > borrowingCapacity) {
+      const toast = await this.toastController.create({
+        message: `Imposible ahorrar ese monto en el plazo de años.`,
+        duration: 5000,
+      });
+
+      await toast.present();
+
+      return Promise.reject();
+    }
+
+    return fee;
+  };
 }

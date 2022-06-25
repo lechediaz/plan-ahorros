@@ -9,10 +9,9 @@ import {
   SimpleChanges,
 } from '@angular/core';
 
-import { ToastController } from '@ionic/angular';
 import { Interval, PlanStatus } from '../../enums';
 import { SavingPlan } from '../../models';
-import { roundDecimal } from '../../utils';
+import { SavingPlanService } from '../../services';
 
 @Component({
   selector: 'app-plan-form',
@@ -20,7 +19,7 @@ import { roundDecimal } from '../../utils';
   styleUrls: ['./plan-form.component.scss'],
 })
 export class PlanFormComponent implements OnInit, OnChanges {
-  constructor(private toastController: ToastController) {
+  constructor(private savingPlanService: SavingPlanService) {
     const yearsArray = [];
 
     for (let index = 0; index < 30; index++) {
@@ -119,45 +118,23 @@ export class PlanFormComponent implements OnInit, OnChanges {
   }
 
   calculateFee() {
-    let borrowingCapacity =
-      parseFloat(this.form.value.income) - parseFloat(this.form.value.bills);
+    let { amount_to_save, income, bills, years } = this.form.value;
 
-    const amount_to_save = parseFloat(this.form.value.amount_to_save);
-    const intervalValue = this.form.value.interval;
-    const yearsValue = parseInt(this.form.value.years);
+    const savinPlan = {
+      ...this.form.value,
+      amount_to_save: parseFloat(amount_to_save),
+      income: parseFloat(income),
+      bills: parseFloat(bills),
+      years: parseInt(years),
+    };
 
-    let dividend = 0;
-
-    switch (intervalValue) {
-      case Interval.Weekly:
-        dividend = 52.1429;
-        borrowingCapacity /= 4.34524;
-        break;
-      case Interval.Biweekly:
-        dividend = 26.0714;
-        borrowingCapacity /= 2.17262;
-        break;
-      default:
-        // Monthly
-        dividend = 12;
-        break;
-    }
-
-    dividend *= yearsValue;
-
-    const fee = roundDecimal(amount_to_save / dividend, 2);
-
-    if (fee > borrowingCapacity) {
-      this.toastController
-        .create({
-          message: `Imposible ahorrar ese monto en el intervalo de tiempo`,
-          duration: 5000,
+    this.savingPlanService
+      .calculateFee(savinPlan)
+      .then((fee) =>
+        this.form.patchValue({
+          fee,
         })
-        .then((t) => t.present());
-    } else {
-      this.form.patchValue({
-        fee,
-      });
-    }
+      )
+      .catch(() => {});
   }
 }
