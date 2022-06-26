@@ -1,12 +1,7 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>home</ion-title>
-  </ion-toolbar>
-</ion-header>
-
 <ion-content>
   <app-fee-card
-    *ngFor="let detail of nextSavingPlanDetails"
-    [savingPlanDetail]="detail"
+    *ngFor="let feeCardInfo of feeCardsInfo"
+    [feeCardInfo]="feeCardInfo"
+    (onQuotaSaved)="onQuotaSaved($event)"
   ></app-fee-card>
 </ion-content>

@@ -1,0 +1,12 @@
+ion-card-content {
+  display: flex;
+  flex-direction: column;
+
+  > p {
+    align-self: flex-start;
+  }
+
+  > ion-button {
+    align-self: flex-end;
+  }
+}

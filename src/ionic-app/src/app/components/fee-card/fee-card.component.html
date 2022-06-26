@@ -1,12 +1,26 @@
-<ion-card *ngIf="savingPlanDetail !== null">
+<ion-card *ngIf="feeCardInfo !== null" color="light">
   <ion-card-header>
-    <ion-card-title>Card Title</ion-card-title>
-    <ion-card-subtitle>{{ savingPlanDetail.saving_date | date:'YYYY-MM-dd' }}</ion-card-subtitle>
+    <ion-card-subtitle
+      >Próxima fecha de recaudo
+      {{ feeCardInfo.saving_date | date: "dd/MM/YYYY" }}</ion-card-subtitle
+    >
+    <ion-card-title>Ahorrando para "{{ feeCardInfo.goal }}"</ion-card-title>
   </ion-card-header>
 
   <ion-card-content>
-    Cada vez te acercas más a tu meta de ahorro, esta vez tendrás que ahorrar {{ savingPlanDetail.fee | currency: "COP" }}
+    <p>
+      Cada vez te acercas más a tu meta de ahorro, la siguiente cuota es de
+      <strong>{{ feeCardInfo.fee | currency: "COP" }}</strong>
+    </p>
+    <ion-button
+      *ngIf="showSaveButton"
+      class="ion-margin-top"
+      color="success"
+      size="small"
+      (click)="onQuotaSavedClick()"
+      >Abonar</ion-button
+    >
   </ion-card-content>
 </ion-card>
 
-<p *ngIf="savingPlanDetail === null">NO hay nada</p>
+<p *ngIf="feeCardInfo === null">NO hay nada</p>

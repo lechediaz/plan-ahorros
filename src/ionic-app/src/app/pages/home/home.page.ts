@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { SavingPlanDetail } from 'src/app/models';
+import { FeeCardInfo } from '../../models';
 
 // Service
 import { SavingPlanDetailService } from '../../services';
@@ -12,11 +12,23 @@ import { SavingPlanDetailService } from '../../services';
 export class HomePage implements OnInit {
   constructor(private savingPlanDetailService: SavingPlanDetailService) {}
 
-  nextSavingPlanDetails: SavingPlanDetail[] = [];
+  feeCardsInfo: FeeCardInfo[] = [];
 
   ngOnInit() {
-    this.savingPlanDetailService.getNextSavingDetails().then((details) => {
-      this.nextSavingPlanDetails = details;
-    });
+    this.fetchPendingDetails().then(() => {});
+  }
+
+  fetchPendingDetails = async () => {
+    const pendingDetails =
+      await this.savingPlanDetailService.getPendingDetails();
+
+    this.feeCardsInfo = pendingDetails;
+  };
+
+  async onQuotaSaved(feeCardInfo: FeeCardInfo) {
+    const { id, saving_plan_id } = feeCardInfo;
+
+    await this.savingPlanDetailService.markDetailAsMade(id, saving_plan_id);
+    await this.fetchPendingDetails();
   }
 }

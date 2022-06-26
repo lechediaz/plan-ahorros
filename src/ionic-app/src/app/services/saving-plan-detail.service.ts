@@ -5,7 +5,7 @@ import { Platform } from '@ionic/angular';
 import { Interval, PlanStatus } from '../enums';
 
 // Models
-import { SavingPlan, SavingPlanDetail } from '../models';
+import { FeeCardInfo, SavingPlan, SavingPlanDetail } from '../models';
 
 // Services
 import { DatabaseService } from './database.service';
@@ -167,13 +167,9 @@ export class SavingPlanDetailService {
    */
   private getMaxIdFromBrowser() {
     let maxId = 0;
+    const details = this.getDetailsFromBrowser();
 
-    const detailsAsString = localStorage.getItem(
-      SQLITE.TABLE_SAVING_PLAN_DETAIL
-    );
-
-    if (detailsAsString !== null) {
-      const details = JSON.parse(detailsAsString);
+    if (details !== null) {
       const ids = details.map((d) => d.id);
 
       maxId = Math.max(...ids);
@@ -183,26 +179,24 @@ export class SavingPlanDetailService {
   }
 
   /**
-   * Gets the next saving plan details to complete.
-   * @returns Next saving plan details.
+   * Gets the pending details.
+   * @returns The pending details.
    */
-  getNextSavingDetails = async (): Promise<SavingPlanDetail[]> => {
+  getPendingDetails = async (): Promise<FeeCardInfo[]> => {
     if (this.platform.is('cordova')) {
-      return await this.getNextSavingDetailsFromDevice();
+      return await this.getPendingDetailsFromDevice();
     } else {
-      return this.getNextSavingDetailsFromBrowser();
+      return this.getPendingDetailsFromBrowser();
     }
   };
 
   /**
-   * Gets the next saving plan details to complete from device.
-   * @returns All the saving plans from the device.
+   * Gets the pending details from device.
+   * @returns The pending details from the device.
    */
-  private getNextSavingDetailsFromDevice = async (): Promise<
-    SavingPlanDetail[]
-  > => {
+  private getPendingDetailsFromDevice = async (): Promise<FeeCardInfo[]> => {
     const resultQuery = await this.databaseService.storage.executeSql(
-      `SELECT * FROM saving_plan_detail AS d0
+      `SELECT d0.*, p.goal, p.amount_to_save FROM saving_plan_detail AS d0
       INNER JOIN (
         SELECT DISTINCT FIRST_VALUE(d.id) OVER (
           PARTITION BY d.saving_plan_id
@@ -211,11 +205,12 @@ export class SavingPlanDetailService {
         FROM saving_plan AS p
         INNER JOIN saving_plan_detail AS d ON p.id = d.saving_plan_id
         WHERE p.status = 1 AND d.saving_made = 0
-      ) AS d1 ON d0.id = d1.id`,
+      ) AS d1 ON d0.id = d1.id
+      INNER JOIN saving_plan AS p ON d0.saving_plan_id = p.id`,
       []
     );
 
-    let savingPlanDetails: SavingPlanDetail[] = [];
+    let savingPlanDetails: FeeCardInfo[] = [];
 
     if (resultQuery.rows.length > 0) {
       for (let index = 0; index < resultQuery.rows.length; index++) {
@@ -229,10 +224,10 @@ export class SavingPlanDetailService {
   };
 
   /**
-   * Gets the next saving plan details to complete from browser.
-   * @returns All the saving plans from the browser.
+   * Gets the pending details from browser.
+   * @returns The pending details from the browser.
    */
-  private getNextSavingDetailsFromBrowser = (): SavingPlanDetail[] => {
+  private getPendingDetailsFromBrowser = (): FeeCardInfo[] => {
     const savingPlansAsString = localStorage.getItem(SQLITE.TABLE_SAVING_PLAN);
     let savingPlans: SavingPlan[] = [];
 
@@ -243,14 +238,14 @@ export class SavingPlanDetailService {
     // Here we have all the started saving plans.
     savingPlans = savingPlans.filter((p) => p.status === PlanStatus.Started);
 
-    let nextSavingPlanDetails: SavingPlanDetail[] = [];
+    let nextSavingPlanDetails: FeeCardInfo[] = [];
 
     const detailsAsString = localStorage.getItem(
       SQLITE.TABLE_SAVING_PLAN_DETAIL
     );
 
     if (detailsAsString !== null) {
-      let details: SavingPlanDetail[] = JSON.parse(detailsAsString);
+      let details: FeeCardInfo[] = JSON.parse(detailsAsString);
 
       // Filter the saving plan details where they are not saving_made, then sort them by saving_date.
       details = details
@@ -262,11 +257,140 @@ export class SavingPlanDetailService {
         );
 
       // Get the first saving plan detail by saving plan.
-      nextSavingPlanDetails = savingPlans.map((p) =>
-        details.find((d) => d.saving_plan_id === p.id)
-      );
+      nextSavingPlanDetails = savingPlans.map((p) => {
+        const detail = details.find((d) => d.saving_plan_id === p.id);
+
+        // Add saving plan info.
+        detail.amount_to_save = p.amount_to_save;
+        detail.goal = p.goal;
+
+        return detail;
+      });
     }
 
     return nextSavingPlanDetails;
   };
+
+  /**
+   * Allows to mark a detail as made and if then there aren't pending details marcks the plan as completed.
+   * @param detailId The detail Id.
+   * @param planId The plan Id.
+   * @returns Promise.
+   */
+  markDetailAsMade = async (
+    detailId: number,
+    planId: number
+  ): Promise<void> => {
+    if (this.platform.is('cordova')) {
+      return await this.markDetailAsMadeOnDevice(detailId, planId);
+    } else {
+      return this.markDetailAsMadeOnBrowser(detailId, planId);
+    }
+  };
+
+  /**
+   * Allows to mark a detail as made and if then there aren't pending details marcks the plan as completed on the device.
+   * @param detailId The detail Id.
+   * @param planId The plan Id.
+   * @returns Promise.
+   */
+  private markDetailAsMadeOnDevice = async (
+    detailId: number,
+    planId: number
+  ): Promise<void> => {
+    let resultUpdate = await this.databaseService.storage.executeSql(
+      `UPDATE ${SQLITE.TABLE_SAVING_PLAN_DETAIL} SET saving_made = 1 WHERE id = ?`,
+      [detailId]
+    );
+
+    console.log(
+      `${SQLITE.TABLE_SAVING_PLAN_DETAIL}: ${resultUpdate.rowsAffected} records updated`
+    );
+
+    const resultQuery = await this.databaseService.storage.executeSql(
+      `SELECT count(1) AS nextDetailsCount FROM ${SQLITE.TABLE_SAVING_PLAN_DETAIL}
+      WHERE saving_made = 0 AND saving_plan_id = ?`,
+      [planId]
+    );
+
+    let pendingDetails = 0;
+
+    if (resultQuery.rows.length === 1) {
+      pendingDetails = resultQuery.rows.item(0).nextDetailsCount;
+    }
+
+    // The saving plan completed.
+    if (pendingDetails === 0) {
+      const updateSQL = `UPDATE ${SQLITE.TABLE_SAVING_PLAN} SET status = ?, completed_date = ? WHERE id = ?`;
+
+      resultUpdate = await this.databaseService.storage.executeSql(updateSQL, [
+        PlanStatus.Completed,
+        new Date().toISOString(),
+        planId,
+      ]);
+
+      console.log(
+        `${SQLITE.TABLE_SAVING_PLAN}: ${resultUpdate.rowsAffected} records updated`
+      );
+    }
+  };
+
+  /**
+   * Allows to mark a detail as made and if then there aren't pending details marcks the plan as completed on the browser.
+   * @param detailId The detail Id.
+   * @param planId The plan Id.
+   * @returns Promise.
+   */
+  private markDetailAsMadeOnBrowser = (detailId: number, planId: number) => {
+    const details = this.getDetailsFromBrowser().map((d) => {
+      if (d.id === detailId) {
+        d.saving_made = 1;
+      }
+
+      return d;
+    });
+
+    const detailsAsString = JSON.stringify(details);
+
+    localStorage.setItem(SQLITE.TABLE_SAVING_PLAN_DETAIL, detailsAsString);
+
+    const pendingDetails = details.filter(
+      (d) => d.saving_plan_id === planId && d.saving_made === 0
+    ).length;
+
+    if (pendingDetails === 0) {
+      // The saving plan completed.
+
+      let plansAsString = localStorage.getItem(SQLITE.TABLE_SAVING_PLAN);
+      let plans: SavingPlan[] = JSON.parse(plansAsString);
+
+      plans = plans.map((p) => {
+        if (p.id === planId) {
+          p.status = PlanStatus.Completed;
+          p.completed_date = new Date().toISOString();
+        }
+
+        return p;
+      });
+
+      plansAsString = JSON.stringify(plans);
+
+      localStorage.setItem(SQLITE.TABLE_SAVING_PLAN, plansAsString);
+    }
+  };
+
+  /** Allows to get all the details from the browser. */
+  private getDetailsFromBrowser(): SavingPlanDetail[] {
+    const detailsAsString = localStorage.getItem(
+      SQLITE.TABLE_SAVING_PLAN_DETAIL
+    );
+
+    let details: SavingPlanDetail[] = [];
+
+    if (detailsAsString !== null) {
+      details = JSON.parse(detailsAsString);
+    }
+
+    return details;
+  }
 }
