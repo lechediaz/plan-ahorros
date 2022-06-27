@@ -25,6 +25,7 @@ export class BasicInfoPage implements OnInit, OnDestroy {
     username: new FormControl('', [
       Validators.required,
       Validators.minLength(1),
+      Validators.pattern('(\\w {0,1})+')
     ]),
     income: new FormControl('', [Validators.required, Validators.min(0)]),
   });

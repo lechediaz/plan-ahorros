@@ -1,9 +1,13 @@
-<ion-card *ngIf="feeCardInfo !== null" color="light">
+<ion-card
+  *ngIf="feeCardInfo !== null"
+  class="ion-margin-bottom"
+  color="light"
+  mode="ios"
+>
   <ion-card-header>
-    <ion-card-subtitle
-      >Próxima fecha de recaudo
-      {{ feeCardInfo.saving_date | date: "dd/MM/YYYY" }}</ion-card-subtitle
-    >
+    <ion-card-subtitle>{{
+      feeCardInfo.saving_date | date: "dd/MM/YYYY"
+    }}</ion-card-subtitle>
     <ion-card-title>Ahorrando para "{{ feeCardInfo.goal }}"</ion-card-title>
   </ion-card-header>
 

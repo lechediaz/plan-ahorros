@@ -7,7 +7,8 @@ import { IonicModule } from '@ionic/angular';
 import { HomePageRoutingModule } from './home-routing.module';
 
 import { HomePage } from './home.page';
-import { FeeCardModule } from 'src/app/components/fee-card/fee-card.module';
+import { FeeCardModule } from '../../components/fee-card/fee-card.module';
+import { EmptyMessageModule } from '../../components/empty-message/empty-message.module';
 
 @NgModule({
   imports: [
@@ -16,6 +17,7 @@ import { FeeCardModule } from 'src/app/components/fee-card/fee-card.module';
     IonicModule,
     HomePageRoutingModule,
     FeeCardModule,
+    EmptyMessageModule,
   ],
   declarations: [HomePage],
 })

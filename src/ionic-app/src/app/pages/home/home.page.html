@@ -1,7 +1,23 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Inicio</ion-title>
+    <ion-buttons slot="end">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
 <ion-content>
-  <app-fee-card
-    *ngFor="let feeCardInfo of feeCardsInfo"
-    [feeCardInfo]="feeCardInfo"
-    (onQuotaSaved)="onQuotaSaved($event)"
-  ></app-fee-card>
+  <app-empty-message
+    *ngIf="feeCardsInfo.length === 0;else cardsList"
+    message="¡Anímate a crear tu primer plan de ahorros!."
+  ></app-empty-message>
+
+  <ng-template #cardsList>
+    <app-fee-card
+      *ngFor="let feeCardInfo of feeCardsInfo"
+      [feeCardInfo]="feeCardInfo"
+      (onQuotaSaved)="onQuotaSaved($event)"
+    ></app-fee-card
+  ></ng-template>
 </ion-content>

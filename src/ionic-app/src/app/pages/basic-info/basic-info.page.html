@@ -4,11 +4,18 @@
   <form [formGroup]="basicInfoForm" (ngSubmit)="onSubmit()">
     <ion-item>
       <ion-label position="floating">Nombre de Usuario</ion-label>
-      <ion-input formControlName="username"></ion-input>
+      <ion-input
+        formControlName="username"
+        placeholder="¿Cómo te llamas?"
+      ></ion-input>
     </ion-item>
     <ion-item>
-      <ion-label position="floating">Ingresos Mensuales</ion-label>
-      <ion-input formControlName="income" type="number"></ion-input>
+      <ion-label position="floating">Ingresos Mensuales </ion-label>
+      <ion-input
+        formControlName="income"
+        placeholder="¿Cuántos son tus ingresos mensuales?"
+        type="number"
+      ></ion-input>
     </ion-item>
     <ion-button
       class="ion-margin-top"
