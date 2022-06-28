@@ -1,3 +1,13 @@
+.custom-skeleton {
+  ion-card-content > p {
+    width: 100%;
+  }
+
+  ion-button {
+    width: 30%;
+  }
+}
+
 ion-card-content {
   display: flex;
   flex-direction: column;

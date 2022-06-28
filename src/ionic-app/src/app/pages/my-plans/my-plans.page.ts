@@ -14,6 +14,9 @@ import { SavingPlan } from './../../models';
 // Services
 import { SavingPlanDetailService, SavingPlanService } from './../../services';
 
+// Utils
+import { createArray } from '../../utils';
+
 @Component({
   selector: 'app-my-plans',
   templateUrl: './my-plans.page.html',
@@ -31,17 +34,28 @@ export class MyPlansPage implements OnInit {
   PlanStatus = PlanStatus;
 
   plans: SavingPlan[] = [];
+  fakePlans: number[] = [];
+  isLoadingPlans: boolean = false;
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.createFakePlans();
+  }
 
   ionViewWillEnter() {
     this.getPlans().then(() => {});
   }
 
+  createFakePlans() {
+    this.fakePlans = createArray();
+  }
+
   getPlans = async () => {
+    this.isLoadingPlans = true;
+
     const plans = await this.savingPlanService.getAllSavingPlans();
 
     this.plans = plans;
+    this.isLoadingPlans = false;
   };
 
   onCreateClick() {

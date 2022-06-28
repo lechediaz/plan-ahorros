@@ -186,7 +186,7 @@ export class SavingPlanDetailService {
     if (this.platform.is('cordova')) {
       return await this.getPendingDetailsFromDevice();
     } else {
-      return this.getPendingDetailsFromBrowser();
+      return await this.getPendingDetailsFromBrowser();
     }
   };
 
@@ -227,49 +227,57 @@ export class SavingPlanDetailService {
    * Gets the pending details from browser.
    * @returns The pending details from the browser.
    */
-  private getPendingDetailsFromBrowser = (): FeeCardInfo[] => {
-    const savingPlansAsString = localStorage.getItem(SQLITE.TABLE_SAVING_PLAN);
-    let savingPlans: SavingPlan[] = [];
-
-    if (savingPlansAsString !== null) {
-      savingPlans = JSON.parse(savingPlansAsString);
-    }
-
-    // Here we have all the started saving plans.
-    savingPlans = savingPlans.filter((p) => p.status === PlanStatus.Started);
-
-    let nextSavingPlanDetails: FeeCardInfo[] = [];
-
-    const detailsAsString = localStorage.getItem(
-      SQLITE.TABLE_SAVING_PLAN_DETAIL
-    );
-
-    if (detailsAsString !== null) {
-      let details: FeeCardInfo[] = JSON.parse(detailsAsString);
-
-      // Filter the saving plan details where they are not saving_made, then sort them by saving_date.
-      details = details
-        .filter((d) => d.saving_made === 0)
-        .sort(
-          (a, b) =>
-            new Date(a.saving_date).getTime() -
-            new Date(b.saving_date).getTime()
+  private getPendingDetailsFromBrowser = (): Promise<FeeCardInfo[]> =>
+    new Promise<FeeCardInfo[]>((resolve, reject) => {
+      setTimeout(() => {
+        const savingPlansAsString = localStorage.getItem(
+          SQLITE.TABLE_SAVING_PLAN
         );
 
-      // Get the first saving plan detail by saving plan.
-      nextSavingPlanDetails = savingPlans.map((p) => {
-        const detail = details.find((d) => d.saving_plan_id === p.id);
+        let savingPlans: SavingPlan[] = [];
 
-        // Add saving plan info.
-        detail.amount_to_save = p.amount_to_save;
-        detail.goal = p.goal;
+        if (savingPlansAsString !== null) {
+          savingPlans = JSON.parse(savingPlansAsString);
+        }
 
-        return detail;
-      });
-    }
+        // Here we have all the started saving plans.
+        savingPlans = savingPlans.filter(
+          (p) => p.status === PlanStatus.Started
+        );
 
-    return nextSavingPlanDetails;
-  };
+        let nextSavingPlanDetails: FeeCardInfo[] = [];
+
+        const detailsAsString = localStorage.getItem(
+          SQLITE.TABLE_SAVING_PLAN_DETAIL
+        );
+
+        if (detailsAsString !== null) {
+          let details: FeeCardInfo[] = JSON.parse(detailsAsString);
+
+          // Filter the saving plan details where they are not saving_made, then sort them by saving_date.
+          details = details
+            .filter((d) => d.saving_made === 0)
+            .sort(
+              (a, b) =>
+                new Date(a.saving_date).getTime() -
+                new Date(b.saving_date).getTime()
+            );
+
+          // Get the first saving plan detail by saving plan.
+          nextSavingPlanDetails = savingPlans.map((p) => {
+            const detail = details.find((d) => d.saving_plan_id === p.id);
+
+            // Add saving plan info.
+            detail.amount_to_save = p.amount_to_save;
+            detail.goal = p.goal;
+
+            return detail;
+          });
+        }
+
+        resolve(nextSavingPlanDetails);
+      }, 3000);
+    });
 
   /**
    * Allows to mark a detail as made and if then there aren't pending details marcks the plan as completed.

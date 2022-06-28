@@ -8,12 +8,19 @@
 </ion-header>
 
 <ion-content>
-  <app-empty-message
-    *ngIf="feeCardsInfo.length === 0;else cardsList"
-    message="¡Anímate a crear tu primer plan de ahorros!."
-  ></app-empty-message>
+  <div *ngIf="isLoadingCardsInfo;else cardsList">
+    <app-fee-card
+      *ngFor="let fakeCard of fakeCards"
+      [isSkeleton]="true"
+    ></app-fee-card>
+  </div>
 
   <ng-template #cardsList>
+    <app-empty-message
+      *ngIf="feeCardsInfo.length === 0"
+      message="¡Anímate a crear tu primer plan de ahorros!."
+    ></app-empty-message>
+
     <app-fee-card
       *ngFor="let feeCardInfo of feeCardsInfo"
       [feeCardInfo]="feeCardInfo"

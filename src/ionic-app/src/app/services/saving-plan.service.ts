@@ -99,7 +99,7 @@ export class SavingPlanService {
     if (this.platform.is('cordova')) {
       plans = await this.getAllSavingPlansFromDevice();
     } else {
-      plans = this.getAllSavingPlansFromBrowser();
+      plans = await this.getAllSavingPlansFromBrowser();
     }
 
     return plans;
@@ -132,16 +132,22 @@ export class SavingPlanService {
    * Gets all the saving plans from the browser.
    * @returns All the saving plans from the browser.
    */
-  private getAllSavingPlansFromBrowser = (): SavingPlan[] => {
-    const savingPlansAsString = localStorage.getItem(SQLITE.TABLE_SAVING_PLAN);
-    let savingPlans: SavingPlan[] = [];
+  private getAllSavingPlansFromBrowser = (): Promise<SavingPlan[]> =>
+    new Promise<SavingPlan[]>((resolve, reject) => {
+      setTimeout(() => {
+        const savingPlansAsString = localStorage.getItem(
+          SQLITE.TABLE_SAVING_PLAN
+        );
 
-    if (savingPlansAsString !== null) {
-      savingPlans = JSON.parse(savingPlansAsString);
-    }
+        let savingPlans: SavingPlan[] = [];
 
-    return savingPlans;
-  };
+        if (savingPlansAsString !== null) {
+          savingPlans = JSON.parse(savingPlansAsString);
+        }
+
+        resolve(savingPlans);
+      }, 3000);
+    });
 
   /**
    * Creates a new saving plan.
