@@ -1,4 +1,4 @@
-import { ToastController } from '@ionic/angular';
+import { LoadingController, Platform, ToastController } from '@ionic/angular';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -18,10 +18,12 @@ import { SavingPlanService } from './../../services';
 })
 export class UpdatePlanPage implements OnInit {
   constructor(
-    private planService: SavingPlanService,
+    private platform: Platform,
     private route: ActivatedRoute,
     private router: Router,
-    private toastController: ToastController
+    private loadingCtrl: LoadingController,
+    private toastController: ToastController,
+    private planService: SavingPlanService
   ) {}
 
   plan: SavingPlan = null;
@@ -29,13 +31,34 @@ export class UpdatePlanPage implements OnInit {
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id')!;
 
-    this.planService
-      .getSavingPlanById(Number(id))
-      .then((plan) => (this.plan = plan));
+    this.platform
+      .ready()
+      .then(() => this.getPlanById(Number(id)))
+      .then(() => {});
   }
 
+  getPlanById = async (id: number) => {
+    let loading = await this.loadingCtrl.create({
+      message: 'Consultando plan',
+    });
+
+    await loading.present();
+
+    this.plan = await this.planService.getSavingPlanById(id);
+
+    await loading.dismiss();
+  };
+
   async onSubmitClick(plan: SavingPlan) {
+    let loading: HTMLIonLoadingElement = null;
+
     try {
+      loading = await this.loadingCtrl.create({
+        message: 'Actualizando plan',
+      });
+
+      await loading.present();
+
       await this.planService.updateSavingPlan(plan);
 
       const toast = await this.toastController.create({
@@ -43,6 +66,7 @@ export class UpdatePlanPage implements OnInit {
         duration: 4000,
       });
 
+      await loading.dismiss();
       await toast.present();
 
       this.router.navigateByUrl(`/${ROUTES.MY_PLANS}`, { replaceUrl: true });
@@ -52,6 +76,10 @@ export class UpdatePlanPage implements OnInit {
       });
 
       await toast.present();
+
+      if (loading !== null) {
+        await loading.dismiss();
+      }
     }
   }
 }

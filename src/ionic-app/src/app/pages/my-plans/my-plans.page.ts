@@ -1,6 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { AlertController, ToastController } from '@ionic/angular';
+import {
+  AlertController,
+  LoadingController,
+  ToastController,
+} from '@ionic/angular';
 
 // Constants
 import { ROUTES } from '../../constants';
@@ -26,6 +30,7 @@ export class MyPlansPage implements OnInit {
   constructor(
     private router: Router,
     private alertController: AlertController,
+    private loadingCtrl: LoadingController,
     private toastController: ToastController,
     private savingPlanService: SavingPlanService,
     private savingPlanDetailService: SavingPlanDetailService
@@ -89,20 +94,31 @@ export class MyPlansPage implements OnInit {
     const { role } = await alert.onDidDismiss();
 
     if (role === 'ok') {
+      const loading = await this.loadingCtrl.create({
+        message: 'Eliminando plan',
+      });
+
+      await loading.present();
       await this.savingPlanService.deleteSavingPlan(plan);
 
       const toast = await this.toastController.create({
-        message: `Plan '${plan.goal}' eliminado.`,
+        message: `Plan '${plan.goal}' eliminado`,
         duration: 3000,
       });
 
       await toast.present();
-
+      await loading.dismiss();
       await this.getPlans();
     }
   }
 
   onStartClick = async (plan: SavingPlan) => {
+    const loading = await this.loadingCtrl.create({
+      message: 'Iniciando plan',
+    });
+
+    await loading.present();
+
     const detailsToCreate = this.savingPlanDetailService.generateQuotas(plan);
 
     await this.savingPlanDetailService.createSavingPlanDetails(detailsToCreate);
@@ -115,10 +131,11 @@ export class MyPlansPage implements OnInit {
     await this.getPlans();
 
     const toast = await this.toastController.create({
-      message: `Plan '${plan.goal}' iniciado.`,
+      message: `Plan '${plan.goal}' iniciado`,
       duration: 3000,
     });
 
+    await loading.dismiss();
     await toast.present();
   };
 }

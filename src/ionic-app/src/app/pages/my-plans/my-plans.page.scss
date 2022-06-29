@@ -3,3 +3,9 @@
     width: 100%;
   }
 }
+
+ion-list {
+  ion-item > ion-label > h2 {
+    font-weight: 600;
+  }
+}

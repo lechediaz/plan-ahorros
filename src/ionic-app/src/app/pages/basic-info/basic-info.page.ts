@@ -64,7 +64,7 @@ export class BasicInfoPage implements OnInit, OnDestroy {
     });
 
     const toast = await this.toastController.create({
-      message: 'Información básica guardada.',
+      message: 'Información básica guardada',
       duration: 2000,
     });
 

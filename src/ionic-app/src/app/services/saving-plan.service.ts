@@ -43,7 +43,7 @@ export class SavingPlanService {
     if (this.platform.is('cordova')) {
       savingPlan = await this.getSavingPlanByIdFromDevice(id);
     } else {
-      savingPlan = this.getSavingPlanByIdFromBrowser(id);
+      savingPlan = await this.getSavingPlanByIdFromBrowser(id);
     }
 
     return savingPlan;
@@ -76,18 +76,24 @@ export class SavingPlanService {
    * @param id The saving plan id.
    * @returns The saving plan.
    */
-  private getSavingPlanByIdFromBrowser = (id: number): SavingPlan => {
-    let savingPlansAsString = localStorage.getItem(SQLITE.TABLE_SAVING_PLAN);
-    let savingPlan: SavingPlan = null;
+  private getSavingPlanByIdFromBrowser = (id: number): Promise<SavingPlan> =>
+    new Promise<SavingPlan>((resolve, reject) => {
+      setTimeout(() => {
+        let savingPlansAsString = localStorage.getItem(
+          SQLITE.TABLE_SAVING_PLAN
+        );
 
-    if (typeof savingPlansAsString === 'string') {
-      const savingPlans = JSON.parse(savingPlansAsString);
+        let savingPlan: SavingPlan = null;
 
-      savingPlan = savingPlans.find((p: SavingPlan) => p.id === id);
-    }
+        if (savingPlansAsString !== null) {
+          const savingPlans = JSON.parse(savingPlansAsString);
 
-    return savingPlan;
-  };
+          savingPlan = savingPlans.find((p: SavingPlan) => p.id === id);
+        }
+
+        resolve(savingPlan);
+      }, 1500);
+    });
 
   /**
    * Gets all the saving plans.
@@ -146,7 +152,7 @@ export class SavingPlanService {
         }
 
         resolve(savingPlans);
-      }, 3000);
+      }, 1500);
     });
 
   /**
@@ -157,7 +163,7 @@ export class SavingPlanService {
     if (this.platform.is('cordova')) {
       await this.createSavingPlanOnDevice(savingPlan);
     } else {
-      this.createSavingPlanOnBrowser(savingPlan);
+      await this.createSavingPlanOnBrowser(savingPlan);
     }
   };
 
@@ -211,24 +217,29 @@ export class SavingPlanService {
    * Creates a new saving plan on the browser.
    * @param savingPlan The saving plan on the browser.
    */
-  private createSavingPlanOnBrowser = (savingPlan: SavingPlan) => {
-    let plansAsString = localStorage.getItem(SQLITE.TABLE_SAVING_PLAN);
-    let plans: SavingPlan[] = [];
+  private createSavingPlanOnBrowser = (savingPlan: SavingPlan): Promise<void> =>
+    new Promise<void>((resolve, reject) => {
+      setTimeout(() => {
+        let plansAsString = localStorage.getItem(SQLITE.TABLE_SAVING_PLAN);
+        let plans: SavingPlan[] = [];
 
-    if (plansAsString !== null) {
-      plans = JSON.parse(plansAsString);
-    }
+        if (plansAsString !== null) {
+          plans = JSON.parse(plansAsString);
+        }
 
-    const maxId = this.getMaxIdFromBrowser();
+        const maxId = this.getMaxIdFromBrowser();
 
-    savingPlan.id = maxId + 1;
+        savingPlan.id = maxId + 1;
 
-    plans.push(savingPlan);
+        plans.push(savingPlan);
 
-    plansAsString = JSON.stringify(plans);
+        plansAsString = JSON.stringify(plans);
 
-    localStorage.setItem(SQLITE.TABLE_SAVING_PLAN, plansAsString);
-  };
+        localStorage.setItem(SQLITE.TABLE_SAVING_PLAN, plansAsString);
+
+        resolve();
+      }, 1500);
+    });
 
   /**
    * Updates a saving plan.
@@ -238,7 +249,7 @@ export class SavingPlanService {
     if (this.platform.is('cordova')) {
       await this.updateSavingPlanOnDevice(savingPlan);
     } else {
-      this.updateSavingPlanOnBrowser(savingPlan);
+      await this.updateSavingPlanOnBrowser(savingPlan);
     }
   };
 
@@ -288,26 +299,31 @@ export class SavingPlanService {
    * Updates a saving plan on the browser.
    * @param savingPlan The saving plan on the browser.
    */
-  private updateSavingPlanOnBrowser = (savingPlan: SavingPlan) => {
-    let plansAsString = localStorage.getItem(SQLITE.TABLE_SAVING_PLAN);
-    let plans: SavingPlan[] = [];
+  private updateSavingPlanOnBrowser = (savingPlan: SavingPlan): Promise<void> =>
+    new Promise<void>((resolve, reject) => {
+      setTimeout(() => {
+        let plansAsString = localStorage.getItem(SQLITE.TABLE_SAVING_PLAN);
+        let plans: SavingPlan[] = [];
 
-    if (plansAsString !== null) {
-      plans = JSON.parse(plansAsString);
-    }
+        if (plansAsString !== null) {
+          plans = JSON.parse(plansAsString);
+        }
 
-    plans = plans.map((p: SavingPlan) => {
-      if (p.id === savingPlan.id) {
-        p = { ...p, ...savingPlan };
-      }
+        plans = plans.map((p: SavingPlan) => {
+          if (p.id === savingPlan.id) {
+            p = { ...p, ...savingPlan };
+          }
 
-      return p;
+          return p;
+        });
+
+        plansAsString = JSON.stringify(plans);
+
+        localStorage.setItem(SQLITE.TABLE_SAVING_PLAN, plansAsString);
+
+        resolve();
+      }, 1500);
     });
-
-    plansAsString = JSON.stringify(plans);
-
-    localStorage.setItem(SQLITE.TABLE_SAVING_PLAN, plansAsString);
-  };
 
   /**
    * Deletes a saving plan.
@@ -317,7 +333,7 @@ export class SavingPlanService {
     if (this.platform.is('cordova')) {
       await this.deleteSavingPlanFromDevice(savingPlan);
     } else {
-      this.deleteSavingPlanFromBrowser(savingPlan);
+      await this.deleteSavingPlanFromBrowser(savingPlan);
     }
   };
 
@@ -344,20 +360,27 @@ export class SavingPlanService {
    * Deletes a saving plan from the browser.
    * @param savingPlan The saving plan.
    */
-  private deleteSavingPlanFromBrowser = (savingPlan: SavingPlan) => {
-    let plansAsString = localStorage.getItem(SQLITE.TABLE_SAVING_PLAN);
-    let plans: SavingPlan[] = [];
+  private deleteSavingPlanFromBrowser = (
+    savingPlan: SavingPlan
+  ): Promise<void> =>
+    new Promise<void>((resolve, reject) => {
+      setTimeout(() => {
+        let plansAsString = localStorage.getItem(SQLITE.TABLE_SAVING_PLAN);
+        let plans: SavingPlan[] = [];
 
-    if (plansAsString !== null) {
-      plans = JSON.parse(plansAsString);
-    }
+        if (plansAsString !== null) {
+          plans = JSON.parse(plansAsString);
+        }
 
-    plans = plans.filter((p: SavingPlan) => p.id !== savingPlan.id);
+        plans = plans.filter((p: SavingPlan) => p.id !== savingPlan.id);
 
-    plansAsString = JSON.stringify(plans);
+        plansAsString = JSON.stringify(plans);
 
-    localStorage.setItem(SQLITE.TABLE_SAVING_PLAN, plansAsString);
-  };
+        localStorage.setItem(SQLITE.TABLE_SAVING_PLAN, plansAsString);
+
+        resolve();
+      }, 1500);
+    });
 
   /**
    * Gets the max id from saving plans saved on browser.
@@ -410,7 +433,7 @@ export class SavingPlanService {
 
     if (fee > borrowingCapacity) {
       const toast = await this.toastController.create({
-        message: `Imposible ahorrar ese monto en el plazo de años.`,
+        message: `Imposible ahorrar ese monto en el plazo de años`,
         duration: 5000,
       });
 

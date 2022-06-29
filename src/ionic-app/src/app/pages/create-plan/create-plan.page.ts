@@ -1,18 +1,20 @@
 import { Router } from '@angular/router';
-import { Platform, ToastController } from '@ionic/angular';
+import { LoadingController, Platform, ToastController } from '@ionic/angular';
 import { Component, OnInit } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { filter } from 'rxjs/operators';
 
 // Constants
 import { ROUTES } from '../../constants';
+
+// Enums
+import { Interval, PlanStatus } from '../../enums';
 
 // Models
 import { SavingPlan } from './../../models';
 
 // Services
 import { BasicInfoService, SavingPlanService } from './../../services';
-import { Subscription } from 'rxjs';
-import { Interval, PlanStatus } from 'src/app/enums';
-import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-create-plan',
@@ -23,13 +25,13 @@ export class CreatePlanPage implements OnInit {
   constructor(
     private platform: Platform,
     private router: Router,
+    private loadingCtrl: LoadingController,
     private toastController: ToastController,
-    private planService: SavingPlanService,
-    private basicInfoService: BasicInfoService
+    private basicInfoService: BasicInfoService,
+    private planService: SavingPlanService
   ) {}
 
   plan: SavingPlan = null;
-
   subscriptions = new Subscription();
 
   ngOnInit() {
@@ -55,7 +57,15 @@ export class CreatePlanPage implements OnInit {
   }
 
   async onSubmitClick(plan: SavingPlan) {
+    let loading: HTMLIonLoadingElement = null;
+
     try {
+      loading = await this.loadingCtrl.create({
+        message: 'Creando nuevo plan',
+      });
+
+      await loading.present();
+
       await this.planService.createSavingPlan(plan);
 
       const toast = await this.toastController.create({
@@ -71,7 +81,12 @@ export class CreatePlanPage implements OnInit {
         message: 'Ha ocurrido un error',
       });
 
+      await loading.dismiss();
       await toast.present();
+    } finally {
+      if (loading !== null) {
+        await loading.dismiss();
+      }
     }
   }
 }
