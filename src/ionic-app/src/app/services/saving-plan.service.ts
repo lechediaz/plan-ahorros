@@ -92,7 +92,7 @@ export class SavingPlanService {
         }
 
         resolve(savingPlan);
-      }, 1500);
+      }, 1000);
     });
 
   /**
@@ -152,7 +152,7 @@ export class SavingPlanService {
         }
 
         resolve(savingPlans);
-      }, 1500);
+      }, 1000);
     });
 
   /**
@@ -238,7 +238,7 @@ export class SavingPlanService {
         localStorage.setItem(SQLITE.TABLE_SAVING_PLAN, plansAsString);
 
         resolve();
-      }, 1500);
+      }, 1000);
     });
 
   /**
@@ -270,7 +270,8 @@ export class SavingPlanService {
       fee = ?,
       status = ?,
       started_date = ?,
-      completed_date = ?
+      completed_date = ?,
+      discarded_date = ?
     WHERE id = ?`;
 
     const resultUpdate = await this.databaseService.storage.executeSql(
@@ -286,6 +287,7 @@ export class SavingPlanService {
         savingPlan.status,
         savingPlan.started_date,
         savingPlan.completed_date,
+        savingPlan.discarded_date,
         savingPlan.id,
       ]
     );
@@ -322,7 +324,7 @@ export class SavingPlanService {
         localStorage.setItem(SQLITE.TABLE_SAVING_PLAN, plansAsString);
 
         resolve();
-      }, 1500);
+      }, 1000);
     });
 
   /**
@@ -379,7 +381,7 @@ export class SavingPlanService {
         localStorage.setItem(SQLITE.TABLE_SAVING_PLAN, plansAsString);
 
         resolve();
-      }, 1500);
+      }, 1000);
     });
 
   /**

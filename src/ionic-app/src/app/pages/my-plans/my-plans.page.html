@@ -50,14 +50,26 @@
           </ion-label>
         </ion-item>
 
-        <ion-item-options side="end" *ngIf="plan.status === PlanStatus.Draft">
-          <ion-item-option (click)="onUpdateClick(plan)"
+        <ion-item-options *ngIf="plan.status < PlanStatus.Completed" side="end">
+          <ion-item-option
+            *ngIf="plan.status === PlanStatus.Draft"
+            (click)="onUpdateClick(plan)"
             ><ion-icon name="pencil" slot="start"></ion-icon>
             Editar</ion-item-option
           >
-          <ion-item-option color="danger" (click)="onDeleteClick(plan)"
+          <ion-item-option
+            *ngIf="plan.status === PlanStatus.Draft"
+            color="danger"
+            (click)="onDeleteClick(plan)"
             ><ion-icon name="trash" slot="start"></ion-icon>
             Eliminar</ion-item-option
+          >
+          <ion-item-option
+            *ngIf="plan.status === PlanStatus.Started"
+            color="warning"
+            (click)="onDiscardClick(plan)"
+            ><ion-icon name="close" slot="start"></ion-icon>
+            Descartar</ion-item-option
           >
         </ion-item-options>
       </ion-item-sliding>

@@ -138,4 +138,48 @@ export class MyPlansPage implements OnInit {
     await loading.dismiss();
     await toast.present();
   };
+
+  onDiscardClick = async (plan: SavingPlan) => {
+    const alert = await this.alertController.create({
+      header: 'Confirmación',
+      message: `Por favor confirme que desea descartar el plan de ahorros '${plan.goal}'`,
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel',
+        },
+        {
+          text: 'Confirmar',
+          role: 'ok',
+        },
+      ],
+    });
+
+    await alert.present();
+
+    const { role } = await alert.onDidDismiss();
+
+    if (role === 'ok') {
+      const loading = await this.loadingCtrl.create({
+        message: 'Descartando plan',
+      });
+
+      await loading.present();
+
+      plan.status = PlanStatus.Discarded;
+      plan.discarded_date = new Date().toISOString();
+
+      await this.savingPlanService.updateSavingPlan(plan);
+
+      await this.getPlans();
+
+      const toast = await this.toastController.create({
+        message: `Plan '${plan.goal}' ha sido descartado`,
+        duration: 3000,
+      });
+
+      await loading.dismiss();
+      await toast.present();
+    }
+  };
 }

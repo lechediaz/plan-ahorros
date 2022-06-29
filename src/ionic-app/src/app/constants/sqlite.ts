@@ -4,6 +4,11 @@
 export const DB_FILE_NAME = 'data.db';
 
 /**
+ * App info table.
+ */
+export const TABLE_APP_INFO = 'app_info';
+
+/**
  * Basic info table.
  */
 export const TABLE_BASIC_INFO = 'basic_info';

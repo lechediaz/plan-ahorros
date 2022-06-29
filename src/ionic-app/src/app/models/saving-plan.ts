@@ -15,4 +15,5 @@ export interface SavingPlan {
   status: PlanStatus;
   started_date?: string;
   completed_date?: string;
+  discarded_date?: string;
 }
