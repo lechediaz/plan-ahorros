@@ -24,10 +24,13 @@ export class DatabaseService {
 
     this.storage = db;
 
+    console.log('Creating tables.');
     await this.createAppInfoTable();
     await this.createBasicInfoTable();
     await this.createSavingPlanTable();
     await this.createSavingPlanDetailTable();
+
+    console.log('Updating database.');
     await this.updateDatabase();
 
     console.log('Database ready.');
@@ -140,20 +143,37 @@ export class DatabaseService {
   };
 
   /**
+   * Allows to set the version code on the device's database.
+   * @param versionCode The version code to set.
+   * @returns The Promise.
+   */
+  private setAppVersionFromDb = (versionCode: number) =>
+    this.storage.executeSql(
+      `UPDATE ${SQLITE.TABLE_APP_INFO} SET version_code = ?`,
+      [versionCode]
+    );
+
+  /**
    * Updates the database according the oldest versions.
    */
   private updateDatabase = async () => {
     const appVersionDb = await this.getAppVersionFromDb();
-    const appVersionCode = await this.appVersion.getVersionCode();
+    const appVersionCode = Number(await this.appVersion.getVersionCode());
 
     if (appVersionDb !== appVersionCode) {
-      for (let index = appVersionDb; index <= appVersionCode; index++) {
-        const functionName = `updateDatabaseVersion${index}`;
+      for (let version = appVersionDb; version <= appVersionCode; version++) {
+        const functionName = `updateDatabaseVersion${version}`;
 
         if (this[functionName] !== undefined) {
-          await this[`updateDatabaseVersion${appVersionCode}`]();
+          try {
+            await this[`updateDatabaseVersion${appVersionCode}`]();
+          } catch (error) {
+            console.log(`Error updating database at version ${version}.`);
+          }
         }
       }
+
+      await this.setAppVersionFromDb(appVersionCode);
     }
   };
 
