@@ -92,7 +92,7 @@ export class SavingPlanService {
         }
 
         resolve(savingPlan);
-      }, 1000);
+      }, 800);
     });
 
   /**
@@ -152,7 +152,7 @@ export class SavingPlanService {
         }
 
         resolve(savingPlans);
-      }, 1000);
+      }, 800);
     });
 
   /**
@@ -238,7 +238,7 @@ export class SavingPlanService {
         localStorage.setItem(SQLITE.TABLE_SAVING_PLAN, plansAsString);
 
         resolve();
-      }, 1000);
+      }, 800);
     });
 
   /**
@@ -324,7 +324,7 @@ export class SavingPlanService {
         localStorage.setItem(SQLITE.TABLE_SAVING_PLAN, plansAsString);
 
         resolve();
-      }, 1000);
+      }, 800);
     });
 
   /**
@@ -381,7 +381,7 @@ export class SavingPlanService {
         localStorage.setItem(SQLITE.TABLE_SAVING_PLAN, plansAsString);
 
         resolve();
-      }, 1000);
+      }, 800);
     });
 
   /**

@@ -276,7 +276,7 @@ export class SavingPlanDetailService {
         }
 
         resolve(nextSavingPlanDetails);
-      }, 1000);
+      }, 800);
     });
 
   /**
