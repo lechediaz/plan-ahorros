@@ -9,6 +9,8 @@ import { CreatePlanPageRoutingModule } from './create-plan-routing.module';
 
 import { CreatePlanPage } from './create-plan.page';
 
+import { HeaderModule } from '../../components/header/header.module';
+
 @NgModule({
   imports: [
     CommonModule,
@@ -16,7 +18,8 @@ import { CreatePlanPage } from './create-plan.page';
     IonicModule,
     CreatePlanPageRoutingModule,
     PlanFormModule,
+    HeaderModule,
   ],
-  declarations: [CreatePlanPage]
+  declarations: [CreatePlanPage],
 })
 export class CreatePlanPageModule {}

@@ -7,7 +7,9 @@ import { IonicModule } from '@ionic/angular';
 import { MyPlansPageRoutingModule } from './my-plans-routing.module';
 
 import { MyPlansPage } from './my-plans.page';
+
 import { EmptyMessageModule } from '../../components/empty-message/empty-message.module';
+import { HeaderModule } from '../../components/header/header.module';
 
 @NgModule({
   imports: [
@@ -16,6 +18,7 @@ import { EmptyMessageModule } from '../../components/empty-message/empty-message
     IonicModule,
     MyPlansPageRoutingModule,
     EmptyMessageModule,
+    HeaderModule,
   ],
   declarations: [MyPlansPage],
 })

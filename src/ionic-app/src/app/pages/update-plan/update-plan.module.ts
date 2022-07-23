@@ -8,6 +8,7 @@ import { UpdatePlanPageRoutingModule } from './update-plan-routing.module';
 
 import { UpdatePlanPage } from './update-plan.page';
 
+import { HeaderModule } from '../../components/header/header.module';
 import { PlanFormModule } from '../../components/plan-form/plan-form.module';
 
 @NgModule({
@@ -16,8 +17,9 @@ import { PlanFormModule } from '../../components/plan-form/plan-form.module';
     FormsModule,
     IonicModule,
     UpdatePlanPageRoutingModule,
-    PlanFormModule
+    HeaderModule,
+    PlanFormModule,
   ],
-  declarations: [UpdatePlanPage]
+  declarations: [UpdatePlanPage],
 })
 export class UpdatePlanPageModule {}

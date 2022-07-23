@@ -8,13 +8,16 @@ import { ViewPlanPageRoutingModule } from './view-plan-routing.module';
 
 import { ViewPlanPage } from './view-plan.page';
 
+import { HeaderModule } from '../../components/header/header.module';
+
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    ViewPlanPageRoutingModule
+    ViewPlanPageRoutingModule,
+    HeaderModule,
   ],
-  declarations: [ViewPlanPage]
+  declarations: [ViewPlanPage],
 })
 export class ViewPlanPageModule {}
