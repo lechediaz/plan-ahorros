@@ -25,6 +25,7 @@
       *ngFor="let feeCardInfo of feeCardsInfo"
       [feeCardInfo]="feeCardInfo"
       (onQuotaSaved)="onQuotaSaved($event)"
+      (onCardClick)="onCardClickHandler($event)"
     ></app-fee-card>
 
     <ion-fab vertical="bottom" horizontal="end" slot="fixed">

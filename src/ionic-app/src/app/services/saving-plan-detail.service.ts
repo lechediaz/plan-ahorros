@@ -83,11 +83,13 @@ export class SavingPlanDetailService {
    * Allows to create saving plan details.
    * @param details The saving plan details to create.
    */
-  createSavingPlanDetails = async (details: SavingPlanDetail[]) => {
+  createSavingPlanDetails = async (
+    details: SavingPlanDetail[]
+  ): Promise<void> => {
     if (this.platform.is('cordova')) {
       await this.createSavingPlanDetailsDevice(details);
     } else {
-      this.createSavingPlanDetailsOnBrowser(details);
+      await this.createSavingPlanDetailsOnBrowser(details);
     }
   };
 
@@ -97,25 +99,32 @@ export class SavingPlanDetailService {
    */
   private createSavingPlanDetailsOnBrowser = (
     detailsToCreate: SavingPlanDetail[]
-  ) => {
-    let detailsAsString = localStorage.getItem(SQLITE.TABLE_SAVING_PLAN_DETAIL);
+  ): Promise<void> =>
+    new Promise<void>((resolve, reject) => {
+      setTimeout(() => {
+        let detailsAsString = localStorage.getItem(
+          SQLITE.TABLE_SAVING_PLAN_DETAIL
+        );
 
-    let actualDetails: SavingPlanDetail[] = [];
+        let actualDetails: SavingPlanDetail[] = [];
 
-    if (detailsAsString !== null) {
-      actualDetails = JSON.parse(detailsAsString);
-    }
+        if (detailsAsString !== null) {
+          actualDetails = JSON.parse(detailsAsString);
+        }
 
-    let maxId = this.getMaxIdFromBrowser();
+        let maxId = this.getMaxIdFromBrowser();
 
-    detailsToCreate = detailsToCreate.map((d) => ({ ...d, id: ++maxId }));
+        detailsToCreate = detailsToCreate.map((d) => ({ ...d, id: ++maxId }));
 
-    actualDetails.push(...detailsToCreate);
+        actualDetails.push(...detailsToCreate);
 
-    detailsAsString = JSON.stringify(actualDetails);
+        detailsAsString = JSON.stringify(actualDetails);
 
-    localStorage.setItem(SQLITE.TABLE_SAVING_PLAN_DETAIL, detailsAsString);
-  };
+        localStorage.setItem(SQLITE.TABLE_SAVING_PLAN_DETAIL, detailsAsString);
+
+        resolve();
+      }, 800);
+    });
 
   /**
    * Allows to create saving plan details on the device.
@@ -169,7 +178,7 @@ export class SavingPlanDetailService {
     let maxId = 0;
     const details = this.getDetailsFromBrowser();
 
-    if (details !== null) {
+    if (details.length > 0) {
       const ids = details.map((d) => d.id);
 
       maxId = Math.max(...ids);
@@ -401,4 +410,71 @@ export class SavingPlanDetailService {
 
     return details;
   }
+
+  /**
+   * Allows to get the details by plan Id.
+   * @param planId The plan Id.
+   * @returns The Plan Details.
+   */
+  getDetailsByPlanId = async (planId: number): Promise<SavingPlanDetail[]> => {
+    if (this.platform.is('cordova')) {
+      return await this.getDetailsByPlanIdFromDevice(planId);
+    } else {
+      return await this.getDetailsByPlanIdFromBrowser(planId);
+    }
+  };
+
+  /**
+   * Allows to get the details by plan Id from the device.
+   * @param planId The plan Id.
+   * @returns The Plan Details.
+   */
+  private getDetailsByPlanIdFromDevice = async (
+    planId: number
+  ): Promise<SavingPlanDetail[]> => {
+    const resultQuery = await this.databaseService.storage.executeSql(
+      `SELECT * FROM saving_plan_detail WHERE saving_plan_id = ?`,
+      [planId]
+    );
+
+    let savingPlanDetails: FeeCardInfo[] = [];
+
+    if (resultQuery.rows.length > 0) {
+      for (let index = 0; index < resultQuery.rows.length; index++) {
+        const savingPlanDetail = resultQuery.rows.item(index);
+
+        savingPlanDetails.push(savingPlanDetail);
+      }
+    }
+
+    return savingPlanDetails;
+  };
+
+  /**
+   * Allows to get the details by plan Id from browser.
+   * @param planId The plan Id.
+   * @returns The Plan Details.
+   */
+  private getDetailsByPlanIdFromBrowser = async (
+    planId: number
+  ): Promise<SavingPlanDetail[]> =>
+    new Promise<SavingPlanDetail[]>((resolve, reject) => {
+      setTimeout(() => {
+        const detailsAsString = localStorage.getItem(
+          SQLITE.TABLE_SAVING_PLAN_DETAIL
+        );
+
+        let details: SavingPlanDetail[] = [];
+
+        if (detailsAsString !== null) {
+          details = JSON.parse(detailsAsString);
+        }
+
+        if (details.length > 0) {
+          details = details.filter((d) => d.saving_plan_id === planId);
+        }
+
+        resolve(details);
+      }, 800);
+    });
 }

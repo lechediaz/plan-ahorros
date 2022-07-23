@@ -53,6 +53,13 @@ const routes: Routes = [
         (m) => m.StartAppPageModule
       ),
   },
+  {
+    path: ROUTES.VIEW_PLAN,
+    loadChildren: () =>
+      import('./pages/view-plan/view-plan.module').then(
+        (m) => m.ViewPlanPageModule
+      ),
+  },
 ];
 
 @NgModule({

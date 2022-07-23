@@ -1,5 +1,5 @@
 <ion-card
-  *ngIf="isSkeleton; else theCard"
+  *ngIf="isSkeleton; else theCardTemplate"
   class="ion-margin-bottom custom-skeleton"
 >
   <ion-card-header>
@@ -27,10 +27,15 @@
   </ion-card-content>
 </ion-card>
 
-<ng-template #theCard>
+<ng-template #theCardTemplate>
   <p *ngIf="feeCardInfo === null">Sin información para el Card.</p>
 
-  <ion-card *ngIf="feeCardInfo !== null" class="ion-margin-bottom">
+  <ion-card
+    *ngIf="feeCardInfo !== null"
+    [button]="true"
+    class="ion-margin-bottom"
+    (click)="onCardClickHandler()"
+  >
     <ion-card-header>
       <ion-card-subtitle>{{
         feeCardInfo.saving_date | date: "dd/MM/YYYY"
@@ -48,7 +53,7 @@
         class="ion-margin-top"
         color="success"
         size="small"
-        (click)="onQuotaSavedClick()"
+        (click)="onQuotaSavedClickHandler()"
         >Abonar</ion-button
       >
     </ion-card-content>

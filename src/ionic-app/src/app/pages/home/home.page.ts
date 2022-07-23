@@ -20,8 +20,8 @@ import { createArray } from '../../utils';
 })
 export class HomePage implements OnInit {
   constructor(
-    private savingPlanDetailService: SavingPlanDetailService,
-    private router: Router
+    private router: Router,
+    private savingPlanDetailService: SavingPlanDetailService
   ) {}
 
   feeCardsInfo: FeeCardInfo[] = [];
@@ -52,6 +52,14 @@ export class HomePage implements OnInit {
 
     await this.savingPlanDetailService.markDetailAsMade(id, saving_plan_id);
     await this.fetchPendingDetails();
+  }
+
+  onCardClickHandler(feeCardInfo: FeeCardInfo) {
+    debugger;
+    const { saving_plan_id } = feeCardInfo;
+    const url = ROUTES.VIEW_PLAN.replace(':id', String(saving_plan_id));
+
+    this.router.navigateByUrl(`/${url}`);
   }
 
   onCreateClick() {

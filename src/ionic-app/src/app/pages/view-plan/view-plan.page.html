@@ -1,0 +1,42 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Ver plan</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-list *ngIf="dataIsLoaded">
+    <ng-container *ngIf="paidDetails.length > 0">
+      <ion-list-header>
+        <ion-label>Abonos realizados</ion-label>
+      </ion-list-header>
+
+      <ng-container
+        *ngTemplateOutlet="showDetailItem; context:{$implicit: paidDetails}"
+      ></ng-container>
+    </ng-container>
+
+    <ng-container *ngIf="pendingDetails.length > 0">
+      <ion-list-header>
+        <ion-label>Abonos pendientes</ion-label>
+      </ion-list-header>
+
+      <ng-container
+        *ngTemplateOutlet="showDetailItem; context:{$implicit: pendingDetails}"
+      ></ng-container>
+    </ng-container>
+  </ion-list>
+</ion-content>
+
+<ng-template #showDetailItem let-details>
+  <ion-item
+    *ngFor="let detail of details"
+    [color]="detail.saving_made === 0 ? 'medium' : 'light'"
+  >
+    <ion-label>
+      <h1>Cuota {{ detail.quota_number }}</h1>
+      <h2>Tarifa {{ detail.fee | currency }}</h2>
+      <p>Fecha {{ detail.saving_date | date: "dd/MM/YYYY" }}</p>
+    </ion-label>
+  </ion-item>
+</ng-template>
