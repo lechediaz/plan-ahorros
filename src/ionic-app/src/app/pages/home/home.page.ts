@@ -55,7 +55,6 @@ export class HomePage implements OnInit {
   }
 
   onCardClickHandler(feeCardInfo: FeeCardInfo) {
-    debugger;
     const { saving_plan_id } = feeCardInfo;
     const url = ROUTES.VIEW_PLAN.replace(':id', String(saving_plan_id));
 
