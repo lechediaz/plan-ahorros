@@ -48,7 +48,7 @@ export class SavingPlanDetailService {
     multiple *= plan.years;
 
     let newDate = new Date();
-    let subTotal = 0;
+    let subtotal = 0;
 
     for (let year = 0; year < multiple; year++) {
       let fee = plan.fee;
@@ -58,10 +58,10 @@ export class SavingPlanDetailService {
         [Interval.Biweekly, Interval.Weekly].includes(plan.interval) &&
         year >= multiple - 1
       ) {
-        fee = roundDecimal(plan.amount_to_save - subTotal, 2);
-        subTotal = roundDecimal(subTotal + fee, 2);
+        fee = roundDecimal(plan.amount_to_save - subtotal, 2);
+        subtotal = roundDecimal(subtotal + fee, 2);
       } else {
-        subTotal = roundDecimal(subTotal + plan.fee, 2);
+        subtotal = roundDecimal(subtotal + plan.fee, 2);
       }
 
       const newDetail: SavingPlanDetail = {
@@ -70,7 +70,7 @@ export class SavingPlanDetailService {
         saving_date: newDate.toISOString(),
         saving_made: 0,
         saving_plan_id: plan.id,
-        subtotal: subTotal,
+        subtotal,
       };
 
       details.push(newDetail);
