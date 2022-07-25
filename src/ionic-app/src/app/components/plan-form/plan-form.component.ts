@@ -85,12 +85,10 @@ export class PlanFormComponent implements OnInit, OnChanges {
     }
   }
 
-  onCalculateFeeClick() {
-    this.calculateFee();
-  }
+  onCalculateFeeClick = async () => await this.calculateFee();
 
-  onSubmit() {
-    this.calculateFee();
+  async onSubmit() {
+    await this.calculateFee();
 
     const {
       amount_to_save,
@@ -117,7 +115,7 @@ export class PlanFormComponent implements OnInit, OnChanges {
     });
   }
 
-  calculateFee() {
+  async calculateFee() {
     let { amount_to_save, income, bills, years } = this.form.value;
 
     const savinPlan = {
@@ -128,13 +126,10 @@ export class PlanFormComponent implements OnInit, OnChanges {
       years: parseInt(years),
     };
 
-    this.savingPlanService
-      .calculateFee(savinPlan)
-      .then((fee) =>
-        this.form.patchValue({
-          fee,
-        })
-      )
-      .catch(() => {});
+    const fee = await this.savingPlanService.calculateFee(savinPlan);
+
+    this.form.patchValue({
+      fee,
+    });
   }
 }
