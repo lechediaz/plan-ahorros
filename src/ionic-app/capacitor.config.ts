@@ -4,7 +4,7 @@ const config: CapacitorConfig = {
   appId: 'lechediaz.plan_ahorros',
   appName: 'Plan de Ahorros',
   webDir: 'www',
-  bundledWebRuntime: false
+  bundledWebRuntime: false,
 };
 
 export default config;
