@@ -3,7 +3,9 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  privacyPolicyURL:
+    'https://apps.lechediaz.com/Plan%20de%20ahorros/pol%C3%ADtica%20de%20privacidad.html',
 };
 
 /*
