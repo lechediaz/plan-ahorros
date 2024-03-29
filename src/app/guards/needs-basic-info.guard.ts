@@ -38,6 +38,7 @@ export class NeedsBasicInfoGuard implements CanActivate {
     | Promise<boolean | UrlTree>
     | boolean
     | UrlTree {
+    console.log('Guard', new Date().toLocaleTimeString());
     return this.basicInfoService.basicInfo.pipe(
       map((basicInfo: BasicInfo) => {
         if (basicInfo !== null) {
