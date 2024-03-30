@@ -1,14 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { filter } from 'rxjs/operators';
-
-// Constants
 import { ROUTES } from './constants';
-
-// Models
-import { BasicInfo } from './models';
-
-// Services
 import { BasicInfoService, DatabaseService, MenuService } from './services';
 import { environment } from 'src/environments/environment';
 import { Router } from '@angular/router';
@@ -22,19 +14,23 @@ import { Platform } from '@ionic/angular';
 export class AppComponent implements OnInit, OnDestroy {
   public privacyPolicyURL = environment.privacyPolicyURL;
   public appPages = [
-    { title: 'Inicio', url: `/${ROUTES.HOME}`, icon: 'home' },
-    { title: 'Mis planes', url: `/${ROUTES.MY_PLANS}`, icon: 'paper-plane' },
+    { title: 'Inicio', url: `/${ROUTES.HOME}`, icon: 'home-outline' },
+    {
+      title: 'Mis planes',
+      url: `/${ROUTES.MY_PLANS}`,
+      icon: 'paper-plane-outline',
+    },
     {
       title: 'Información básica',
       url: `/${ROUTES.BASIC_INFO}`,
-      icon: 'build',
+      icon: 'build-outline',
     },
   ];
 
   subscriptions: Subscription = new Subscription();
 
   userName: string = '';
-  show = false;
+  showApp = false;
 
   constructor(
     private basicInfoService: BasicInfoService,
@@ -45,7 +41,6 @@ export class AppComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    console.log('Component', new Date().toLocaleTimeString());
     this.menuService.setDisableMenu(true);
 
     this.platform
@@ -57,16 +52,23 @@ export class AppComponent implements OnInit, OnDestroy {
 
         return Promise.resolve();
       })
-      .then(() => this.basicInfoService.loadBasicInfo());
+      .then(() => this.basicInfoService.loadBasicInfo())
+      .then(() => {
+        this.showApp = true;
 
-    this.subscriptions.add(
-      this.basicInfoService.basicInfo
-        .pipe(filter((basicInfo: BasicInfo) => basicInfo !== null))
-        .subscribe((basicInfo) => {
-          this.show = true;
-          this.userName = basicInfo.username;
-        })
-    );
+        this.subscriptions.add(
+          this.basicInfoService.basicInfo.subscribe((basicInfo) => {
+            if (basicInfo !== null) {
+              this.menuService.setDisableMenu();
+              this.userName = basicInfo.username;
+            } else {
+              this.router.navigateByUrl(ROUTES.BASIC_INFO, {
+                replaceUrl: true,
+              });
+            }
+          })
+        );
+      });
   }
 
   ngOnDestroy(): void {
