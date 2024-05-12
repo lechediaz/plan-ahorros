@@ -1,19 +1,30 @@
-<ion-content class="ion-padding-horizontal">
-  <h2>Información básica</h2>
+<ion-header>
+  <app-header [showBackButton]="false" title="Información básica"></app-header>
+</ion-header>
 
+<ion-content class="ion-padding-horizontal">
+  <ion-text color="medium">
+    <p>
+      Esta información es necesaria para saber cómo dirigirnos a ti y para hacer
+      algunos cálculos; ¡no te preocupes!, no es compartida con nadie más, solo
+      se usa en esta aplicación y ya, como debe ser :). En todo caso aquí se
+      encuentra nuestra
+      <a target="_blank" [href]="privacyPolicyURL">política de privacidad</a>.
+    </p>
+  </ion-text>
   <form [formGroup]="basicInfoForm" (ngSubmit)="onSubmit()">
     <ion-item>
       <ion-label position="floating">Nombre de Usuario</ion-label>
       <ion-input
         formControlName="username"
-        placeholder="¿Cómo te llamas?"
+        placeholder="¿Cómo te podemos decir?"
       ></ion-input>
     </ion-item>
     <ion-item>
-      <ion-label position="floating">Ingresos Mensuales </ion-label>
+      <ion-label position="floating">Ingreso Mensual Neto</ion-label>
       <ion-input
         formControlName="income"
-        placeholder="¿Cuántos son tus ingresos mensuales?"
+        placeholder="¿Cuánto dinero te queda libre?"
         type="number"
       ></ion-input>
     </ion-item>

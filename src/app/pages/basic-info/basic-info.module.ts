@@ -7,6 +7,7 @@ import { IonicModule } from '@ionic/angular';
 import { BasicInfoPageRoutingModule } from './basic-info-routing.module';
 
 import { BasicInfoPage } from './basic-info.page';
+import { HeaderModule } from 'src/app/components/header/header.module';
 
 @NgModule({
   imports: [
@@ -15,6 +16,7 @@ import { BasicInfoPage } from './basic-info.page';
     IonicModule,
     BasicInfoPageRoutingModule,
     ReactiveFormsModule,
+    HeaderModule,
   ],
   declarations: [BasicInfoPage],
 })

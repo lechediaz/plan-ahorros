@@ -7,6 +7,7 @@ import { Subscription } from 'rxjs';
 
 import { ROUTES } from '../../constants';
 import { BasicInfoService, MenuService } from './../../services';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-basic-info',
@@ -25,11 +26,12 @@ export class BasicInfoPage implements OnInit, OnDestroy {
     username: new FormControl('', [
       Validators.required,
       Validators.minLength(1),
-      Validators.pattern('(\\w {0,1})+')
+      Validators.pattern('(\\w {0,1})+'),
     ]),
     income: new FormControl('', [Validators.required, Validators.min(0)]),
   });
 
+  privacyPolicyURL = environment.privacyPolicyURL;
   subscriptions = new Subscription();
 
   ngOnInit() {

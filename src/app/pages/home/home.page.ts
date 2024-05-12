@@ -1,17 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-
-// Constants
 import { ROUTES } from '../../constants';
-
-// Models
 import { FeeCardInfo } from '../../models';
-
-// Service
-import { SavingPlanDetailService } from '../../services';
-
-// Utils
+import { BasicInfoService, SavingPlanDetailService } from '../../services';
 import { createArray } from '../../utils';
+import { Subscription } from 'rxjs';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-home',
@@ -20,6 +14,7 @@ import { createArray } from '../../utils';
 })
 export class HomePage implements OnInit {
   constructor(
+    private basicInfoService: BasicInfoService,
     private router: Router,
     private savingPlanDetailService: SavingPlanDetailService
   ) {}
@@ -27,10 +22,19 @@ export class HomePage implements OnInit {
   feeCardsInfo: FeeCardInfo[] = [];
   fakeCards: number[] = [];
   isLoadingCardsInfo: boolean = false;
+  userName: string = '';
+  subscriptions: Subscription = new Subscription();
 
   ngOnInit() {
     this.createFakeCards();
     this.fetchPendingDetails().then(() => {});
+    this.subscriptions.add(
+      this.basicInfoService.basicInfo
+        .pipe(filter((basicInfo) => basicInfo !== null))
+        .subscribe((basicInfo) => {
+          this.userName = basicInfo.username;
+        })
+    );
   }
 
   createFakeCards() {

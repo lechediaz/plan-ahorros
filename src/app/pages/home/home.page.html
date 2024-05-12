@@ -11,10 +11,22 @@
   </div>
 
   <ng-template #cardsList>
-    <app-empty-message
+    <section
+      class="ion-text-center ion-padding-horizontal"
       *ngIf="feeCardsInfo.length === 0"
-      message="¡Anímate a crear tu primer plan de ahorros!."
-    ></app-empty-message>
+    >
+      <ion-text color="secondary">
+        <h2>
+          ¡{{ userName }}, anímate a crear tu primer plan de ahorros!
+        </h2></ion-text
+      >
+      <ion-text color="medium">
+        <p>
+          Para hacerlo haz click en el botón flotante que está en la parte
+          inferior derecha y que tiene un +
+        </p>
+      </ion-text>
+    </section>
 
     <app-fee-card
       *ngFor="let feeCardInfo of feeCardsInfo"
