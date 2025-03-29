@@ -36,6 +36,12 @@ Abrir en IDE.
 ionic capacitor open android
 ```
 
+Ejecutar en navegador
+
+```
+ionic serve
+```
+
 ## Recomendación
 
 Corregir problema de namespace: https://stackoverflow.com/questions/76108428/how-do-i-fix-namespace-not-specified-error-in-android-studio

@@ -5,7 +5,7 @@
 export const environment = {
   production: false,
   privacyPolicyURL:
-    'https://github.com/lechediaz/plan-ahorros/blob/master/privacy-policy.html',
+    'https://apps.lechediaz.com/plan_ahorros/privacy-policy.html',
 };
 
 /*
